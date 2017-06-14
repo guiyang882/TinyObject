@@ -16,7 +16,6 @@ import pickle
 import tensorflow as tf
 import numpy as np
 from sklearn.model_selection import train_test_split
-import cv2
 from PIL import Image
 
 from mainmodels.models.ssd.settings import g_SSDConfig
@@ -47,8 +46,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
         # Read images from image_files
         images = []
         for image_file in image_files:
-            image = Image.open('resized_images_%sx%s/%s' % (
-                g_SSDConfig.IMG_W, g_SSDConfig.IMG_H, image_file))
+            image = Image.open('%s/%s' % (g_SSDConfig.TRAIN_DATA_SRC_PATH, image_file))
             image = np.asarray(image)
             images.append(image)
 
@@ -101,8 +99,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
 
 def run_training():
     # Load training and test data
-    with open('data_prep_%sx%s.p' % (g_SSDConfig.IMG_W, g_SSDConfig.IMG_H),
-              mode='rb') as f:
+    with open(g_SSDConfig.TRAIN_DATA_META_PATH, mode='rb') as f:
         train = pickle.load(f)
     # with open('test.p', mode='rb') as f:
     #	test = pickle.load(f)

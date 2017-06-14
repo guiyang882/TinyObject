@@ -67,6 +67,9 @@ class SSDConfig(object):
                                 "train", "model.ckpt"])
     TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
 
-    TRAIN_DATA_PATH = ""
+    TRAIN_DATA_META_PATH = "/Volumes/projects/TrafficSign/SSD" \
+                      "/signDatabasePublicFramesOnly/data_raw_400x260.p"
+    TRAIN_DATA_SRC_PATH = \
+        "/Volumes/projects/TrafficSign/SSD/signDatabasePublicFramesOnly/resized_images_400x260"
 
 g_SSDConfig = SSDConfig()

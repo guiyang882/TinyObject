@@ -14,4 +14,8 @@ from __future__ import print_function
 1. python extractAnnotations.py copy allAnnotations.csv
 2. python mergeAnnotationFiles.py frame mergedAnnotations.csv
 3. python create_pickle.py
+
+train_data in the path:
+/Volumes/projects/TrafficSign/SSD/signDatabasePublicFramesOnly
+/data_raw_400x260.p
 """
