@@ -10,7 +10,7 @@ from __future__ import print_function
 import os
 
 import tensorflow as tf
-from trainmodel.models.autoencoder.builders import build_batch, scale_image
+from mainmodels.models.autoencoder.builders import build_batch, scale_image
 
 from mainmodels.models.autoencoder.utils import InputType
 

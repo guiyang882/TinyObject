@@ -13,10 +13,10 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-from models.tradition.cnn import model as CNNModel
-from models.tradition.multicnn import model as MultiCNNModel
-from models.tradition.config import g_CNNConfig
-from models.tradition.config import g_MultiCNNConfig
+from mainmodels.models.tradition.cnn import model as CNNModel
+from mainmodels.models.tradition.multicnn import model as MultiCNNModel
+from mainmodels.models.tradition.config import g_CNNConfig
+from mainmodels.models.tradition.config import g_MultiCNNConfig
 
 
 class ModelServer(object):

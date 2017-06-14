@@ -10,11 +10,10 @@ from __future__ import print_function
 import time
 
 import tensorflow as tf
-from models.autoencoder.data_input import WordData
-from trainmodel.models.autoencoder.builders import build_optimizer
-from trainmodel.models.autoencoder.builders import build_train_savers
-from trainmodel.models.autoencoder.model import SingleLayerAE
-
+from mainmodels.models.autoencoder.data_input import WordData
+from mainmodels.models.autoencoder.builders import build_optimizer
+from mainmodels.models.autoencoder.builders import build_train_savers
+from mainmodels.models.autoencoder.model import SingleLayerAE
 from mainmodels.models.autoencoder.utils import InputType
 
 

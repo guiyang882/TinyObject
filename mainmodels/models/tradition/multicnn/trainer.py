@@ -13,8 +13,8 @@ import time
 from datetime import datetime
 
 import tensorflow as tf
-from models.tradition.multicnn import model
-from models.tradition.config import g_MultiCNNConfig
+from mainmodels.models.tradition.multicnn import model
+from mainmodels.models.tradition.config import g_MultiCNNConfig
 
 absdirpath = os.path.dirname(os.path.abspath(__file__))
 

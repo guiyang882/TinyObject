@@ -13,10 +13,10 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from trainmodel.models.rpnplus import data_engine
-from trainmodel.models.rpnplus.config import g_RpnPlus_Config
 
-from mainmodels.models.tradition import extractTarget
+from mainmodels.models.rpnplus import data_engine
+from mainmodels.models.rpnplus.config import g_RpnPlus_Config
+from mainmodels.models.tradition.tools import extractTarget
 
 image_height = g_RpnPlus_Config.image_height
 image_width = g_RpnPlus_Config.image_width

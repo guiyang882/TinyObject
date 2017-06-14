@@ -5,8 +5,8 @@ from __future__ import print_function
 import re
 
 import tensorflow as tf
-from models.tradition import data_input
-from models.tradition.config import g_CNNConfig
+from mainmodels.models.tradition import data_input
+from mainmodels.models.tradition.config import g_CNNConfig
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the

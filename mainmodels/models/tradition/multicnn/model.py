@@ -9,12 +9,12 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from models.tradition import data_input
-from models.tradition.config import g_MultiCNNConfig
-from models.tradition.multicnn.layers import _add_loss_summaries
-from models.tradition.multicnn.layers import create_conv_layer
-from models.tradition.multicnn.layers import create_fc_layer
-from models.tradition.multicnn.layers import create_softmax_layer
+from mainmodels.models.tradition import data_input
+from mainmodels.models.tradition.config import g_MultiCNNConfig
+from mainmodels.models.tradition.multicnn.layers import _add_loss_summaries
+from mainmodels.models.tradition.multicnn.layers import create_conv_layer
+from mainmodels.models.tradition.multicnn.layers import create_fc_layer
+from mainmodels.models.tradition.multicnn.layers import create_softmax_layer
 
 
 def distorted_inputs():

@@ -12,10 +12,10 @@ import os
 
 import numpy as np
 from PIL import Image
-from trainmodel.models.rpnplus import NMS
-from trainmodel.models.rpnplus.config import g_RpnPlus_Config
+from mainmodels.models.rpnplus import NMS
+from mainmodels.models.rpnplus.config import g_RpnPlus_Config
 
-from mainmodels.models.tradition import extractAirplanePosInfo
+from mainmodels.models.tradition.tools.extractTarget import extractAirplanePosInfo
 
 # wandhG = [[100.0, 100.0], [300.0, 300.0], [500.0, 500.0],
 #           [200.0, 100.0], [370.0, 185.0], [440.0, 220.0],

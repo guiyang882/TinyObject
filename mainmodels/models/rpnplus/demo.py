@@ -14,10 +14,10 @@ from datetime import datetime
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-from trainmodel.models.rpnplus import data_engine
-from trainmodel.models.rpnplus.config import g_RpnPlus_Config
 
-from mainmodels.models.rpnplus.tools import IMGLIB
+from mainmodels.models.rpnplus import data_engine
+from mainmodels.models.rpnplus.config import g_RpnPlus_Config
+from mainmodels.models.rpnplus.tools.image_pylib import IMGLIB
 
 VGG_MEAN = [103.939, 116.779, 123.68]
 

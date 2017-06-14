@@ -14,7 +14,7 @@ import time
 import cv2
 import numpy as np
 
-from models.tradition.control.model_cnn_server import ModelServer
+from mainmodels.models.tradition.control.model_cnn_server import ModelServer
 
 proj_root = "/".join(os.path.abspath(__file__).split("/")[0:-5])
 images_path = "/".join([proj_root, "trainmodel", "data", "JL1ST", "image.list"])

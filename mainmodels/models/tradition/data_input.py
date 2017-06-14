@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from models.tradition.config import g_CNNConfig
+from mainmodels.models.tradition.config import g_CNNConfig
 
 
 def read_cifar10(filename_queue):

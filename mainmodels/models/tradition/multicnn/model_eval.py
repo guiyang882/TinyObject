@@ -14,8 +14,8 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
-from models.tradition.multicnn import model
-from models.tradition.config import g_MultiCNNConfig
+from mainmodels.models.tradition.multicnn import model
+from mainmodels.models.tradition.config import g_MultiCNNConfig
 
 FLAGS = tf.app.flags.FLAGS
 

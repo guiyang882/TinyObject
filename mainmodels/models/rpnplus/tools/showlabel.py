@@ -11,7 +11,7 @@ from __future__ import print_function
 import os
 import shutil
 
-from mainmodels.models.rpnplus.tools import IMGLIB
+from mainmodels.models.rpnplus.tools.image_pylib import IMGLIB
 
 if __name__ == '__main__':
     imglib = IMGLIB()

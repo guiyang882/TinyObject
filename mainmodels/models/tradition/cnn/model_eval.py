@@ -14,8 +14,8 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
-from models.tradition.cnn import model
-from models.tradition.config import g_CNNConfig
+from mainmodels.models.tradition.cnn import model
+from mainmodels.models.tradition.config import g_CNNConfig
 
 FLAGS = tf.app.flags.FLAGS
 
