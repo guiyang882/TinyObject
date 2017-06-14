@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from mainmodels.models.ssd.model import SSDModel
+from mainmodels.models.ssd.ssdmodel import SSDModel
 from mainmodels.models.ssd.settings import *
 
 
@@ -18,7 +18,7 @@ FM_ONLY = False  # Only want to see feature map sizes?
 with tf.Graph().as_default(), tf.Session() as sess:
     if FM_ONLY:
         if MODEL == "AlexNet":
-            from mainmodels.models.ssd.model import AlexNet as MyModel
+            from mainmodels.models.ssd.ssdmodel import AlexNet as MyModel
         else:
             raise NotImplementedError("Model %s not supported" % MODEL)
         _ = MyModel()

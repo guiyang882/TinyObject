@@ -8,25 +8,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import math
 import os
 import time
-import pickle
 
 import numpy as np
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
-from moviepy.editor import VideoFileClip
-from optparse import OptionParser
-import glob
 
 from mainmodels.models.ssd.settings import g_SSDConfig
-from mainmodels.models.ssd.model import SSDModel
-from mainmodels.models.ssd.model import ModelHelper
-from mainmodels.models.ssd.model import nms
+from mainmodels.models.ssd.ssdmodel import SSDModel
+from mainmodels.models.ssd.tools.NMS import nms
 
 
 def run_inference(image, model, sess, sign_map):
@@ -135,7 +128,6 @@ def generate_output(input_files, options):
             os.mkdir(options.inference_out)
         except FileExistsError:
             raise IOError('Error: Cannot mkdir ./inference_out')
-            return
 
     # Launch the graph
     with tf.Graph().as_default(), tf.Session() as sess:
