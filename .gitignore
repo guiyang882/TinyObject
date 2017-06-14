@@ -16,3 +16,11 @@ output/
 /data/
 /pretrain/
 /mainmodels/log/
+/attached/airplane.png
+/attached/drawLine.png
+/attached/CIFAR10train.png
+/attached/SAEModel.png
+!/attached/SAEModel.png
+!/attached/CIFAR10train.png
+!/attached/airplane.png
+!/attached/drawLine.png
