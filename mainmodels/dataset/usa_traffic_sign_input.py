@@ -7,3 +7,11 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+"""美国交通数据的组织"""
+
+"""
+1. python extractAnnotations.py copy allAnnotations.csv
+2. python mergeAnnotationFiles.py frame mergedAnnotations.csv
+3. python create_pickle.py
+"""

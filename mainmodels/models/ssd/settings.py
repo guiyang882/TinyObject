@@ -67,4 +67,6 @@ class SSDConfig(object):
                                 "train", "model.ckpt"])
     TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
 
+    TRAIN_DATA_PATH = ""
+
 g_SSDConfig = SSDConfig()

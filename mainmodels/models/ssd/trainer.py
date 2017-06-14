@@ -100,13 +100,6 @@ def next_batch(X, y_conf, y_loc, batch_size):
 
 
 def run_training():
-    """
-	Load training and test data
-	Run training process
-	Plot train/validation losses
-	Report test loss
-	Save model
-	"""
     # Load training and test data
     with open('data_prep_%sx%s.p' % (g_SSDConfig.IMG_W, g_SSDConfig.IMG_H),
               mode='rb') as f:
@@ -230,7 +223,7 @@ def run_training():
 
         total_time = time.time() - train_start_time
         print('Total elapsed time: %d min %d sec' % (
-        total_time / 60, total_time % 60))
+            total_time / 60, total_time % 60))
 
         test_loss = 0.  # TODO: Add test set
         '''
