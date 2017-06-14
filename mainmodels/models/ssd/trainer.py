@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 from PIL import Image
 
-from mainmodels.models.ssd.settings import *
+from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.model import SSDModel
 from mainmodels.models.ssd.model import ModelHelper
 
@@ -48,14 +48,15 @@ def next_batch(X, y_conf, y_loc, batch_size):
 		# Read images from image_files
 		images = []
 		for image_file in image_files:
-			image = Image.open('resized_images_%sx%s/%s' % (IMG_W, IMG_H, image_file))
+			image = Image.open('resized_images_%sx%s/%s' % (
+				g_SSDConfig.IMG_W, g_SSDConfig.IMG_H, image_file))
 			image = np.asarray(image)
 			images.append(image)
 
 		images = np.array(images, dtype='float32')
 
 		# Grayscale images have array shape (H, W), but we want shape (H, W, 1)
-		if NUM_CHANNELS == 1:
+		if g_SSDConfig.NUM_CHANNELS == 1:
 			images = np.expand_dims(images, axis=-1)
 
 		# Normalize pixel values (scale them between -1 and 1)
@@ -63,7 +64,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
 
 		# For y_true_conf, calculate how many negative examples we need to satisfy NEG_POS_RATIO
 		num_pos = np.where(y_true_conf > 0)[0].shape[0]
-		num_neg = NEG_POS_RATIO * num_pos
+		num_neg = g_SSDConfig.NEG_POS_RATIO * num_pos
 		y_true_conf_size = np.sum(y_true_conf.shape)
 
 		# Create confidence loss mask to satisfy NEG_POS_RATIO
@@ -105,7 +106,8 @@ def run_training():
 	Save model
 	"""
 	# Load training and test data
-	with open('data_prep_%sx%s.p' % (IMG_W, IMG_H), mode='rb') as f:
+	with open('data_prep_%sx%s.p' % (g_SSDConfig.IMG_W, g_SSDConfig.IMG_H),
+              mode='rb') as f:
 		train = pickle.load(f)
 	#with open('test.p', mode='rb') as f:
 	#	test = pickle.load(f)
@@ -123,8 +125,10 @@ def run_training():
 	y_train_loc = np.array(y_train_loc)
 
 	# Train/validation split
-	X_train, X_valid, y_train_conf, y_valid_conf, y_train_loc, y_valid_loc = train_test_split(\
-		X_train, y_train_conf, y_train_loc, test_size=VALIDATION_SIZE, random_state=1)
+	X_train, X_valid, y_train_conf, y_valid_conf, y_train_loc, y_valid_loc = \
+        train_test_split(
+            X_train, y_train_conf, y_train_loc,
+            test_size=g_SSDConfig.VALIDATION_SIZE, random_state=1)
 
 	# Launch the graph
 	with tf.Graph().as_default(), tf.Session() as sess:
@@ -142,9 +146,10 @@ def run_training():
 		# TF saver to save/restore trained model
 		saver = tf.train.Saver()
 
-		if RESUME:
-			print('Restoring previously trained model at %s' % MODEL_SAVE_PATH)
-			saver.restore(sess, MODEL_SAVE_PATH)
+		if g_SSDConfig.RESUME:
+			print('Restoring previously trained model at %s' %
+                  g_SSDConfig.MODEL_SAVE_PATH)
+			saver.restore(sess, g_SSDConfig.MODEL_SAVE_PATH)
 
 			# Restore previous loss history
 			with open('loss_history.p', 'rb') as f:
@@ -163,9 +168,11 @@ def run_training():
 		train_start_time = time.time()
 
 		# Run NUM_EPOCH epochs of training
-		for epoch in range(NUM_EPOCH):
-			train_gen = next_batch(X_train, y_train_conf, y_train_loc, BATCH_SIZE)
-			num_batches_train = math.ceil(X_train.shape[0] / BATCH_SIZE)
+		for epoch in range(g_SSDConfig.NUM_EPOCH):
+			train_gen = next_batch(X_train, y_train_conf, y_train_loc,
+                                   g_SSDConfig.BATCH_SIZE)
+			num_batches_train = math.ceil(X_train.shape[0] /
+                                          g_SSDConfig.BATCH_SIZE)
 			losses = []  # list of loss values for book-keeping
 
 			# Run training on each batch
@@ -189,8 +196,10 @@ def run_training():
 			train_loss = np.mean(losses)
 
 			# Calculate validation loss at the end of the epoch
-			valid_gen = next_batch(X_valid, y_valid_conf, y_valid_loc, BATCH_SIZE)
-			num_batches_valid = math.ceil(X_valid.shape[0] / BATCH_SIZE)
+			valid_gen = next_batch(X_valid, y_valid_conf, y_valid_loc,
+                                   g_SSDConfig.BATCH_SIZE)
+			num_batches_valid = math.ceil(X_valid.shape[0] /
+                                          g_SSDConfig.BATCH_SIZE)
 			losses = []
 			for _ in range(num_batches_valid):
 				images, y_true_conf_gen, y_true_loc_gen, conf_loss_mask_gen = next(valid_gen)
@@ -227,9 +236,9 @@ def run_training():
 		print('Test acc.: %.4f' % (test_acc,))
 		'''
 
-		if SAVE_MODEL:
+		if g_SSDConfig.SAVE_MODEL:
 			# Save model to disk
-			save_path = saver.save(sess, MODEL_SAVE_PATH)
+			save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
 			print('Trained model saved at: %s' % save_path)
 
 			# Also save accuracy history
