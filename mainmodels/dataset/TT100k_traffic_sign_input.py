@@ -13,6 +13,21 @@ import os
 import pprint
 
 import cv2
+from PIL import Image
+
+from mainmodels.dataset.tools import show_image_with_annotation
+from mainmodels.dataset.tools import UtilityTools
+from mainmodels.dataset.tools import Point
+from mainmodels.dataset.tools import SampleStep
+from mainmodels.dataset.tools import Rectangle
+from mainmodels.dataset.tools import BBox
+
+TRAIN_ANNOTATION_SAVE_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                       "/StandardData/train_annotation.json"
+TEST_ANNOTATION_SAVE_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                       "/StandardData/test_annotation.json"
+TRAIN_DATASET_SAVE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/train"
+TEST_DATASET_SAVE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/test"
 
 
 class TT100K_DataSet(object):
@@ -69,27 +84,99 @@ class TT100K_DataSet(object):
                 self._train_set[file_dict["path"]] = file_dict["objects"]
             else:
                 print(file_dict["path"])
+        target_width, target_height = 400, 260
 
-        for file_path, target_list in self._train_set.items():
+        print("开始采样训练数据")
+        dataset_dict = self.__sample_samples(
+            self._train_set, target_height, target_width)
+        self.__save_crop_images(dataset_dict, TRAIN_DATASET_SAVE_DIR,
+                                TRAIN_ANNOTATION_SAVE_PATH)
+
+        print("开始采样测试数据")
+        dataset_dict = self.__sample_samples(
+            self._test_set, target_height, target_width)
+        self.__save_crop_images(dataset_dict, TEST_DATASET_SAVE_DIR,
+                                TEST_ANNOTATION_SAVE_PATH)
+
+
+    def __sample_samples(self, dataset, target_height, target_width):
+        """dataset_dict
+        {
+        '/Volumes/projects/TrafficSign/Tencent-Tsinghua/data/train/10926.jpg': {
+            Rectangle(left_up=Point(x=750, y=760), right_down=Point(x=1150, y=1020)):
+                {'pn': [BBox(xmin=376.3699999999999, ymin=231.54200000000003, xmax=387.80849999999987, ymax=242.9851)]},
+            Rectangle(left_up=Point(x=750, y=780), right_down=Point(x=1150, y=1040)):
+                {'pn': [BBox(xmin=376.3699999999999, ymin=211.54200000000003, xmax=387.80849999999987, ymax=222.9851)]},
+            Rectangle(left_up=Point(x=750, y=800), right_down=Point(x=1150, y=1060)):
+                {'pn': [BBox(xmin=376.3699999999999, ymin=191.54200000000003, xmax=387.80849999999987, ymax=202.9851)]}
+        }
+        """
+        dataset_dict = dict()
+        for file_path, target_list in dataset.items():
             abs_file_path = "/".join([self._base_dir, file_path])
-            pprint.pprint(target_list[0])
-            self.__show_image_with_annotation(abs_file_path, target_list)
-            break
+            image = Image.open(abs_file_path)
+            img_width, img_height = image.size
+            # print(img_width, img_height)
+            # pprint.pprint(target_list)
+            object_pos_dict = {}
+            for cell_object_dict in target_list:
+                bbox_dict = cell_object_dict["bbox"]
+                bbox = BBox(bbox_dict["xmin"], bbox_dict["ymin"],
+                            bbox_dict["xmax"], bbox_dict["ymax"])
+                object_pos_dict.setdefault(cell_object_dict["category"], [])
+                object_pos_dict[cell_object_dict["category"]].append(bbox)
 
-    @staticmethod
-    def __show_image_with_annotation(abs_file_path, target_info_list):
-        image = cv2.imread(abs_file_path)
-        for target_info in target_info_list:
-            xmin = int(target_info["bbox"]["xmin"])
-            ymin = int(target_info["bbox"]["ymin"])
-            xmax = int(target_info["bbox"]["xmax"])
-            ymax = int(target_info["bbox"]["ymax"])
-            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (255, 0, 0))
-        cv2.imshow("test", image)
-        cv2.waitKey()
+            # pprint.pprint(object_pos_dict)
+            left_up = Point(0, 0)
+            right_down = Point(img_width, img_height)
+            src_region = Rectangle(left_up, right_down)
+            sample_step = SampleStep(width=50, height=20)
+            rect_objects_dict = UtilityTools.ergodic_crop_region_with_transform(
+                src_region, object_pos_dict, target_height, target_width,
+                sample_step)
+            # pprint.pprint(rect_objects_dict)
+            dataset_dict[abs_file_path] = rect_objects_dict
+            # pprint.pprint(dataset_dict)
+        return dataset_dict
 
-    def __prepare_train_data(self):
-        pass
+    def __save_crop_images(self, dataset_dict, save_dir, annotation_file_path):
+        """dataset_dict
+            {
+            '/Volumes/projects/TrafficSign/Tencent-Tsinghua/data/train/10926.jpg': {
+                Rectangle(left_up=Point(x=750, y=760), right_down=Point(x=1150, y=1020)):
+                    {'pn': [BBox(xmin=376.3699999999999, ymin=231.54200000000003, xmax=387.80849999999987, ymax=242.9851)]},
+                Rectangle(left_up=Point(x=750, y=780), right_down=Point(x=1150, y=1040)):
+                    {'pn': [BBox(xmin=376.3699999999999, ymin=211.54200000000003, xmax=387.80849999999987, ymax=222.9851)]},
+                Rectangle(left_up=Point(x=750, y=800), right_down=Point(x=1150, y=1060)):
+                    {'pn': [BBox(xmin=376.3699999999999, ymin=191.54200000000003, xmax=387.80849999999987, ymax=202.9851)]}
+            }
+        """
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+        annotation_dict = dict()
+        for abs_file, object_pos_dict in dataset_dict.items():
+            if not os.path.exists(abs_file):
+                continue
+            src_image = cv2.imread(abs_file)
+            # print(object_pos_dict)
+            for t_rect, cell_dict in object_pos_dict.items():
+                l_x, l_y = t_rect.left_up.x, t_rect.left_up.y
+                r_x, r_y = t_rect.right_down.x, t_rect.right_down.y
+                crop_image = src_image[l_y:r_y, l_x:r_x]
+                image_name = os.path.basename(abs_file)
+                image_name = ".".join(image_name.split(".")[0:-1])
+                image_name += "_%d_%d_%d_%d" % (int(l_x), int(l_y),
+                                                int(r_x), int(r_y))
+                image_name += ".png"
+                save_abs_file_path = "/".join([save_dir, image_name])
+                cv2.imwrite(save_abs_file_path, crop_image)
+                # show_image_with_annotation(save_abs_file_path, cell_dict)
+                annotation_dict[save_abs_file_path] = cell_dict
+
+        with open(annotation_file_path, "w") as handle:
+            handle.write(json.dumps(
+                annotation_dict, indent=4, sort_keys=False, ensure_ascii=False))
+
 
 if __name__ == '__main__':
     obj_dataset = TT100K_DataSet()

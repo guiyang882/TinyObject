@@ -10,12 +10,27 @@ from __future__ import print_function
 
 from collections import namedtuple
 
+import cv2
+
 
 SampleStep = namedtuple("SampleStep", ["width", "height"])
 Point = namedtuple("Point", ["x", "y"])
 Rectangle = namedtuple("Rectangle", ["left_up", "right_down"])
 BBox = namedtuple("BBox", ["xmin", "ymin", "xmax", "ymax"])
 
+
+def show_image_with_annotation(abs_file_path, target_info_dict):
+    image = cv2.imread(abs_file_path)
+    for label, target_info_list in target_info_dict.items():
+        for target_info in target_info_list:
+            print(target_info)
+            xmin = int(target_info.xmin)
+            ymin = int(target_info.ymin)
+            xmax = int(target_info.xmax)
+            ymax = int(target_info.ymax)
+            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (255, 0, 0))
+    cv2.imshow("test", image)
+    cv2.waitKey()
 
 def is_region_valid(region):
     if not isinstance(region, Rectangle):
@@ -133,8 +148,11 @@ class UtilityTools(object):
                 t_left_pos = Point(st_x, st_y)
                 t_right_pos = Point(st_x+target_width, st_y+target_height)
                 t_rect = Rectangle(t_left_pos, t_right_pos)
-                rect_list.append(t_rect)
-        return rect_list
+                transformed_pos_dict = UtilityTools.transform_global_object_pos(
+                    t_rect, object_pos_dict)
+                if transformed_pos_dict:
+                    rect_objects_dict[t_rect] = transformed_pos_dict
+        return rect_objects_dict
 
     @staticmethod
     def transform_global_object_pos(small_region, object_pos_dict):
@@ -148,6 +166,13 @@ class UtilityTools(object):
         case 03:
             物体的位置转换之后超过80%给定的区域
         """
+        delta_width = small_region.left_up.x
+        delta_height = small_region.left_up.y
+        l_x, l_y = 0, 0
+        r_x = small_region.right_down.x - delta_width
+        r_y = small_region.right_down.y - delta_height
+        transformed_small_region = Rectangle(Point(l_x, l_y), Point(r_x, r_y))
+        transformed_pos_dict = {}
         for label, object_pos_list in object_pos_dict.items():
             transformed_list = []
             for bbox in object_pos_list:
@@ -159,10 +184,11 @@ class UtilityTools(object):
                 if not is_region_valid(region_bbox):
                     continue
                 # TODO(liuguiyang): 对于候选区域是否在给定的小区域中
-                transformed_list.append(new_pos)
-            object_pos_dict[label] = transformed_list
-        print(object_pos_dict)
-        return object_pos_dict
+                if is_region_inner(transformed_small_region, region_bbox):
+                    transformed_list.append(new_pos)
+            if transformed_list:
+                transformed_pos_dict[label] = transformed_list
+        return transformed_pos_dict
 
 
 if __name__ == '__main__':
