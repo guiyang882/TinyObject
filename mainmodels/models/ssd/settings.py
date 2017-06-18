@@ -25,8 +25,8 @@ class SSDConfig(object):
     NUM_DEFAULT_BOXES = len(DEFAULT_BOXES)
 
     # Constants (TODO: Keep this updated as we go along)
-    NUM_CLASSES = 3  # 2 signs + 1 background class
-    NUM_CHANNELS = 1  # grayscale->1, RGB->3
+    NUM_CLASSES = 222  # 221 signs + 1 background class
+    NUM_CHANNELS = 3  # grayscale->1, RGB->3
     NUM_PRED_CONF = NUM_DEFAULT_BOXES * NUM_CLASSES  # number of class predictions per feature map cell
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
@@ -67,9 +67,19 @@ class SSDConfig(object):
                                 "train", "model.ckpt"])
     TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
 
-    TRAIN_DATA_META_PATH = "/Volumes/projects/TrafficSign/SSD" \
-                      "/signDatabasePublicFramesOnly/data_raw_400x260.p"
+    TRAIN_DATA_RAW_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                          "/StandardData/train_data_raw_400x260.pkl"
+    TEST_DATA_RAW_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                          "/StandardData/test_data_raw_400x260.pkl"
     TRAIN_DATA_SRC_PATH = \
         "/Volumes/projects/TrafficSign/SSD/signDatabasePublicFramesOnly/resized_images_400x260"
+
+    tt100k_traffic_sign_path = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                          "/StandardData/TT100K_traffic_sign.json"
+    tt100k_train_annotation_path = \
+        "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/train_annotation.json"
+    tt100k_test_annotation_path = \
+        "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/test_annotation.json"
+
 
 g_SSDConfig = SSDConfig()

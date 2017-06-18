@@ -11,7 +11,7 @@ from __future__ import print_function
 import numpy as np
 import pickle
 
-from mainmodels.models.ssd.settings import *
+from mainmodels.models.ssd.settings import g_SSDConfig
 
 def calc_iou(box_a, box_b):
 	"""

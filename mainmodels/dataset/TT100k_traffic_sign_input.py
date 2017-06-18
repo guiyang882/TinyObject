@@ -69,7 +69,7 @@ class TT100K_DataSet(object):
     def nums_train_class(self):
         return len(self._train_set)
 
-    def __init_annotation(self):
+    def __init_annotation(self, recreated=False):
         self.__is_file_exits(self._annotations_path)
         with open(self._annotations_path, 'r') as handle:
             self._annotations_data = json.load(handle)
@@ -85,18 +85,18 @@ class TT100K_DataSet(object):
             else:
                 print(file_dict["path"])
         target_width, target_height = 400, 260
+        if recreated:
+            print("开始采样训练数据")
+            dataset_dict = self.__sample_samples(
+                self._train_set, target_height, target_width)
+            self.__save_crop_images(dataset_dict, TRAIN_DATASET_SAVE_DIR,
+                                    TRAIN_ANNOTATION_SAVE_PATH)
 
-        print("开始采样训练数据")
-        dataset_dict = self.__sample_samples(
-            self._train_set, target_height, target_width)
-        self.__save_crop_images(dataset_dict, TRAIN_DATASET_SAVE_DIR,
-                                TRAIN_ANNOTATION_SAVE_PATH)
-
-        print("开始采样测试数据")
-        dataset_dict = self.__sample_samples(
-            self._test_set, target_height, target_width)
-        self.__save_crop_images(dataset_dict, TEST_DATASET_SAVE_DIR,
-                                TEST_ANNOTATION_SAVE_PATH)
+            print("开始采样测试数据")
+            dataset_dict = self.__sample_samples(
+                self._test_set, target_height, target_width)
+            self.__save_crop_images(dataset_dict, TEST_DATASET_SAVE_DIR,
+                                    TEST_ANNOTATION_SAVE_PATH)
 
 
     def __sample_samples(self, dataset, target_height, target_width):
@@ -180,4 +180,11 @@ class TT100K_DataSet(object):
 
 if __name__ == '__main__':
     obj_dataset = TT100K_DataSet()
+    class_types = obj_dataset.class_types
+    class_dict = dict()
+    for idx, label in enumerate(class_types):
+        class_dict[label] = idx+1
+    with open("TT100K_traffic_sign.json", "w") as handle:
+        handle.write(json.dumps(
+            class_dict, indent=4, sort_keys=False, ensure_ascii=False))
     # obj_dataset.load_annotation()
