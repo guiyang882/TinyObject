@@ -67,19 +67,26 @@ class SSDConfig(object):
                                 "train", "model.ckpt"])
     TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
 
-    TRAIN_DATA_RAW_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                          "/StandardData/train_data_raw_400x260.pkl"
-    TEST_DATA_RAW_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                          "/StandardData/test_data_raw_400x260.pkl"
+    DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+
+    TRAIN_DATA_RAW_PATH = "/".join(
+        [DATASET_BASE_DIR, "train_data_raw_400x260.pkl"])
+    TEST_DATA_RAW_PATH = "/".join(
+        [DATASET_BASE_DIR, "test_data_raw_400x260.pkl"])
+    TRAIN_DATA_PRE_PATH = "/".join(
+        [DATASET_BASE_DIR, "train_data_prep_400x260.pkl"])
+    TEST_DATA_PRE_PATH = "/".join(
+        [DATASET_BASE_DIR, "test_data_prep_400x260.pkl"])
+
     TRAIN_DATA_SRC_PATH = \
         "/Volumes/projects/TrafficSign/SSD/signDatabasePublicFramesOnly/resized_images_400x260"
 
-    tt100k_traffic_sign_path = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                          "/StandardData/TT100K_traffic_sign.json"
-    tt100k_train_annotation_path = \
-        "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/train_annotation.json"
-    tt100k_test_annotation_path = \
-        "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/test_annotation.json"
+    tt100k_traffic_sign_path = "/".join(
+        [DATASET_BASE_DIR, "TT100K_traffic_sign.json"])
+    tt100k_train_annotation_path = "/".join(
+        [DATASET_BASE_DIR, "train_annotation.json"])
+    tt100k_test_annotation_path = "/".join(
+        [DATASET_BASE_DIR, "test_annotation.json"])
 
 
 g_SSDConfig = SSDConfig()
