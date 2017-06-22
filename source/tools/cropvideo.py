@@ -39,7 +39,7 @@ class VideoTracking():
         subImgs.append([c_x, width, c_y, height, frame[c_x:width, c_y:height]])
         return subImgs
 
-    def run(self):
+    def run(self) -> object:
         # 获得视频的格式
         while self.cam.isOpened():
             ret, frame = self.cam.read()

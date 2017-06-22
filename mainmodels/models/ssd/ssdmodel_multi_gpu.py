@@ -52,10 +52,9 @@ def ModelHelper(y_pred_conf, y_pred_loc):
 	"""
     num_total_preds = 0
     for fm_size in g_SSDConfig.FM_SIZES:
-        num_total_preds += (fm_size[0] * fm_size[1] *
-                            g_SSDConfig.NUM_DEFAULT_BOXES)
+        num_total_preds += fm_size[0] * fm_size[1] * \
+                           g_SSDConfig.NUM_DEFAULT_BOXES
     num_total_preds_conf = num_total_preds * g_SSDConfig.NUM_CLASSES
-    print(num_total_preds_conf)
     num_total_preds_loc = num_total_preds * 4
 
     # Input tensors
@@ -99,9 +98,9 @@ def ModelHelper(y_pred_conf, y_pred_loc):
     loss = conf_loss + g_SSDConfig.LOC_LOSS_WEIGHT * loc_loss + tf.reduce_sum(
         tf.losses.get_regularization_losses())
     tf.add_to_collection("losses", loss)
-    optimizer = g_SSDConfig.OPT.minimize(loss)
+    # optimizer = g_SSDConfig.OPT.minimize(loss)
 
-    reported_loss = loss #tf.reduce_sum(loss, 1)  # DEBUG
+    # reported_loss = loss #tf.reduce_sum(loss, 1)  # DEBUG
 
     # Class probabilities and predictions
     probs_all = tf.nn.softmax(logits)
@@ -115,7 +114,7 @@ def ModelHelper(y_pred_conf, y_pred_loc):
         'y_true_conf': y_true_conf,
         'y_true_loc': y_true_loc,
         'conf_loss_mask': conf_loss_mask,
-        'optimizer': optimizer,
+        # 'optimizer': optimizer,
         'conf_loss': conf_loss,
         'loc_loss': loc_loss,
         'loss': loss,

@@ -27,9 +27,9 @@ class RpnPlusModelConfig(object):
     test_samples_index_path = \
         "/Users/liuguiyang/Downloads/AirplaneSamples/Positive/test/index.txt"
 
-    image_height = 224
-    image_width = 224
-    image_depth = 1
+    image_height = 720
+    image_width = 960
+    image_depth = 3
 
     feature_ratio = 8
 

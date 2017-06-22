@@ -26,8 +26,6 @@ def AlexNet():
     preds_loc = []
 
     # Use batch normalization for all convolution layers
-    # FIXME: Not sure why setting is_training is not working well
-    # with slim.arg_scope([slim.conv2d], normalizer_fn=slim.batch_norm, normalizer_params={'is_training': is_training}):
     with slim.arg_scope([slim.conv2d], normalizer_fn=slim.batch_norm,
                         normalizer_params={'is_training': True},
                         weights_regularizer=slim.l2_regularizer(

@@ -35,7 +35,6 @@ class BBX:
         self.w = safeInt(self.w * scale)
         self.h = safeInt(self.h * scale)
 
-
 class IMGLIB:
     def __init__(self):
         pass

@@ -46,6 +46,7 @@ class SSDConfig(object):
         # IMG_H, IMG_W = 300, 300
         # FM_SIZES = [[36, 36], [17, 17], [9, 9], [5, 5]]  # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
 
+        # IMG_H, IMG_W = 720, 960
         IMG_H, IMG_W = 260, 400
         FM_SIZES = [[31, 48], [15, 23], [8, 12], [4, 6]]
     else:
@@ -56,30 +57,42 @@ class SSDConfig(object):
     REG_SCALE = 1e-2  # L2 regularization strength
     LOC_LOSS_WEIGHT = 1.  # weight of localization loss: loss = conf_loss + LOC_LOSS_WEIGHT * loc_loss
 
+    # for Multi-GPU learning
+    GPU_NUMS = 2
+    TOWER_NAME = "TOWER"
+    INIT_LEARNING_RATE = 0.001
+    NUM_EPOCHS_PER_DECAY = 350.0
+    LEARNING_RATE_DECAY_FACTOR = 0.1
+    MOVING_AVERAGE_DECAY = 0.9999
+
     # Training process
     RESUME = False  # resume training from previously saved model?
     NUM_EPOCH = 200
-    BATCH_SIZE = 32  # batch size for training (relatively small)
+    BATCH_SIZE = 16  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
     MODEL_SAVE_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
                                 "train", "model.ckpt"])
+    LOSS_HISTORY_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
+                                  "loss_history.pkl"])
     TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
 
     DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
 
     TRAIN_DATA_RAW_PATH = "/".join(
-        [DATASET_BASE_DIR, "train_data_raw_400x260.pkl"])
+        [DATASET_BASE_DIR, "train_data_raw.pkl"])
     TEST_DATA_RAW_PATH = "/".join(
-        [DATASET_BASE_DIR, "test_data_raw_400x260.pkl"])
+        [DATASET_BASE_DIR, "test_data_raw.pkl"])
     TRAIN_DATA_PRE_PATH = "/".join(
-        [DATASET_BASE_DIR, "train_data_prep_400x260.pkl"])
+        [DATASET_BASE_DIR, "raw_prep", "train_data_prep.pkl"])
     TEST_DATA_PRE_PATH = "/".join(
-        [DATASET_BASE_DIR, "test_data_prep_400x260.pkl"])
+        [DATASET_BASE_DIR, "raw_prep", "test_data_prep.pkl"])
 
-    TRAIN_DATA_SRC_PATH = \
-        "/Volumes/projects/TrafficSign/SSD/signDatabasePublicFramesOnly/resized_images_400x260"
+    TRAIN_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "train"])
+    TEST_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "test"])
+
+    RESIZED_IMAGES_DIR = "/".join([DATASET_BASE_DIR, "resized_images"])
 
     tt100k_traffic_sign_path = "/".join(
         [DATASET_BASE_DIR, "TT100K_traffic_sign.json"])

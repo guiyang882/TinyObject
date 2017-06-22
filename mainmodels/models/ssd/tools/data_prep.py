@@ -8,8 +8,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+import __init
 import numpy as np
 import pickle
+
+from concurrent.futures import ThreadPoolExecutor
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 
@@ -148,14 +152,41 @@ def do_data_prep(data_raw):
 
 
 if __name__ == '__main__':
-    with open(g_SSDConfig.TRAIN_DATA_RAW_PATH, 'rb') as f:
-        data_raw = pickle.load(f)
+    # with open(g_SSDConfig.TRAIN_DATA_RAW_PATH, 'rb') as f:
+    #     data_raw = pickle.load(f)
+    #
+    # print('Preparing data (i.e. matching boxes)')
+    # data_prep = do_data_prep(data_raw)
+    #
+    # with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, 'wb') as f:
+    #     pickle.dump(data_prep, f)
+    #
+    # print('Done. Saved prepared data to %s !' % g_SSDConfig.TRAIN_DATA_PRE_PATH)
+    # print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
 
-    print('Preparing data (i.e. matching boxes)')
-    data_prep = do_data_prep(data_raw)
+    sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/raw_data"
+    sub_prep_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                        "/StandardData/raw_prep"
 
-    with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, 'wb') as f:
-        pickle.dump(data_prep, f)
+    def sub_call(sub_raw_file):
+        abs_file = "/".join([sub_raw_data_dir, sub_raw_file])
+        save_abs_file = "/".join([sub_prep_data_dir,
+                                  sub_raw_file.replace("raw", "prep")])
 
-    print('Done. Saved prepared data to %s !' % g_SSDConfig.TRAIN_DATA_PRE_PATH)
-    print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
+        with open(abs_file, 'rb') as f:
+            data_raw = pickle.load(f)
+
+        print('Preparing data (i.e. matching boxes)')
+        data_prep = do_data_prep(data_raw)
+
+        with open(save_abs_file, 'wb') as f:
+            pickle.dump(data_prep, f)
+
+        print(
+            'Done. Saved prepared data to %s !' % save_abs_file)
+        print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
+
+
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        raw_data_file_list = os.listdir(sub_raw_data_dir)
+        futures = [executor.submit(sub_call, sub_raw_file) for sub_raw_file in raw_data_file_list]

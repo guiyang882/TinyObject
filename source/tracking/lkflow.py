@@ -22,7 +22,7 @@ class VideoTracking():
                       minDistance=5,
                       blockSize=5)
 
-    def run(self):
+    def run(self) -> object:
         # 获得视频的格式
         while self.cam.isOpened():
             ret, frame = self.cam.read()

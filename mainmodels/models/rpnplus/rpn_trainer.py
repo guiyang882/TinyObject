@@ -20,8 +20,8 @@ from mainmodels.models.tradition.tools import extractTarget
 
 image_height = g_RpnPlus_Config.image_height
 image_width = g_RpnPlus_Config.image_width
-feature_height = int(np.ceil(image_height / 8.))
-feature_width = int(np.ceil(image_width / 8.))
+feature_height = int(np.ceil(image_height / g_RpnPlus_Config.feature_ratio))
+feature_width = int(np.ceil(image_width / g_RpnPlus_Config.feature_ratio))
 
 class RPN:
 
@@ -127,29 +127,29 @@ class RPN:
         assert self.conv_bbox_pred.get_shape().as_list()[1:] == \
                [feature_height, feature_width, 36]
 
-        # shape=(7056, 2)
+        # shape=(batch_size*90*120*9, 2)
         self.cls_score = tf.reshape(self.conv_cls_score, [-1, 2])
         print("cls_score: ", self.cls_score.shape)
-        # shape=(7056, 4)
+        # shape=(batch_size*90*120*9, 4)
         self.bbox_pred = tf.reshape(self.conv_bbox_pred, [-1, 4])
         print("bbox_pred: ", self.bbox_pred.shape)
 
         self.prob = tf.nn.softmax(self.cls_score, name="prob")
-        self.cross_entropy = tf.reduce_sum(
+        self.cross_entropy = (tf.reduce_sum(
             tf.nn.softmax_cross_entropy_with_logits(
-                logits=self.cls_score, labels=label) * label_weight) \
-                             / tf.reduce_sum(label_weight)
+                logits=self.cls_score, labels=label) * label_weight) /
+                              tf.reduce_sum(label_weight))
 
         bbox_error = tf.abs(self.bbox_pred - bbox_target)
-        bbox_loss = 0.5 * bbox_error * bbox_error * tf.cast(
-            bbox_error < 1, tf.float32) + \
-            (bbox_error - 0.5) * tf.cast(bbox_error >= 1, tf.float32)
-        self.bb_loss = tf.reduce_sum(
-            tf.reduce_sum(bbox_loss, reduction_indices=[1]) * bbox_loss_weight)\
-                       / tf.reduce_sum(bbox_loss_weight)
+        bbox_loss = (0.5 * bbox_error * bbox_error * tf.cast(
+            bbox_error < 1, tf.float32) + (bbox_error - 0.5) * tf.cast(
+            bbox_error >= 1, tf.float32))
+        self.bb_loss = (tf.reduce_sum(
+            tf.reduce_sum(bbox_loss, reduction_indices=[1]) *
+            bbox_loss_weight) / tf.reduce_sum(bbox_loss_weight))
 
-        self.loss = self.cross_entropy + \
-                    0.0005 * self.weight_dacay + 0.5 * self.bb_loss
+        self.loss = (self.cross_entropy + 0.0005 * self.weight_dacay + 0.5 *
+                     self.bb_loss)
 
         self.train_step = tf.train.MomentumOptimizer(learning_rate,
                                                      0.9).minimize(self.loss)

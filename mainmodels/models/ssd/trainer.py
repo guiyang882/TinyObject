@@ -46,7 +46,9 @@ def next_batch(X, y_conf, y_loc, batch_size):
         # Read images from image_files
         images = []
         for image_file in image_files:
-            image = Image.open('%s/%s' % (g_SSDConfig.TRAIN_DATA_SRC_PATH, image_file))
+            image_abs_file = "/".join(
+                [g_SSDConfig.DATASET_BASE_DIR, image_file])
+            image = Image.open(image_abs_file)
             image = np.asarray(image)
             images.append(image)
 
@@ -83,7 +85,6 @@ def next_batch(X, y_conf, y_loc, batch_size):
             for zero_idx in chosen_zero_indices:
                 i, j = zero_idx
                 conf_loss_mask[i][j] = 1.
-
         else:
             # If we have so many positive examples such that num_pos+num_neg >= y_true_conf_size,
             # no need to prune negative data
@@ -99,7 +100,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
 
 def run_training():
     # Load training and test data
-    with open(g_SSDConfig.TRAIN_DATA_META_PATH, mode='rb') as f:
+    with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, mode='rb') as f:
         train = pickle.load(f)
     # with open('test.p', mode='rb') as f:
     #	test = pickle.load(f)
@@ -144,7 +145,7 @@ def run_training():
             saver.restore(sess, g_SSDConfig.MODEL_SAVE_PATH)
 
             # Restore previous loss history
-            with open('loss_history.p', 'rb') as f:
+            with open(g_SSDConfig.LOSS_HISTORY_PATH, 'rb') as f:
                 loss_history = pickle.load(f)
         else:
             print('Training model from scratch')
@@ -222,29 +223,39 @@ def run_training():
         print('Total elapsed time: %d min %d sec' % (
             total_time / 60, total_time % 60))
 
-        test_loss = 0.  # TODO: Add test set
-        '''
-		# After training is complete, evaluate accuracy on test set
-		print('Calculating test accuracy...')
-		test_gen = next_batch(X_test, y_test, BATCH_SIZE)
-		test_size = X_test.shape[0]
-		test_acc = calculate_accuracy(test_gen, test_size, BATCH_SIZE, accuracy, x, y, keep_prob, sess)
-		print('Test acc.: %.4f' % (test_acc,))
-		'''
-
         if g_SSDConfig.SAVE_MODEL:
             # Save model to disk
             save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
             print('Trained model saved at: %s' % save_path)
 
             # Also save accuracy history
-            print('Loss history saved at loss_history.p')
-            with open('loss_history.p', 'wb') as f:
+            print('Loss history saved at loss_history.pkl')
+            with open(g_SSDConfig.LOSS_HISTORY_PATH, 'wb') as f:
                 pickle.dump(loss_history, f)
 
     # Return final test accuracy and accuracy_history
-    return test_loss, loss_history
+    return loss_history
 
 
 if __name__ == '__main__':
     run_training()
+    # base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/raw_prep/prep_data"
+    # prep_train = dict()
+    # prep_test = dict()
+    # for file_path in os.listdir(base_dir):
+    #     if "train" in file_path:
+    #         with open(base_dir+"/"+file_path, "rb") as handle:
+    #             part_train = pickle.load(handle)
+    #             for key, val in part_train.items():
+    #                 prep_train[key] = val
+    #     if "test" in file_path:
+    #         with open(base_dir+"/"+file_path, "rb") as handle:
+    #             part_test = pickle.load(handle)
+    #             for key, val in part_test.items():
+    #                 prep_test[key] = val
+    # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    #           "/raw_prep/train_data_prep.pkl", "wb") as handle:
+    #     pickle.dump(prep_train, handle)
+    # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    #           "/raw_prep/test_data_prep.pkl", "wb") as handle:
+    #     pickle.dump(prep_test, handle)

@@ -22,12 +22,13 @@ from mainmodels.dataset.tools import SampleStep
 from mainmodels.dataset.tools import Rectangle
 from mainmodels.dataset.tools import BBox
 
-TRAIN_ANNOTATION_SAVE_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                       "/StandardData/train_annotation.json"
-TEST_ANNOTATION_SAVE_PATH = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                       "/StandardData/test_annotation.json"
-TRAIN_DATASET_SAVE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/train"
-TEST_DATASET_SAVE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/test"
+
+base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+TRAFFIC_SIGN_LABEL_PATH = "/".join([base_dir, "TT100K_traffic_sign.json"])
+TRAIN_ANNOTATION_SAVE_PATH = "/".join([base_dir, "train_annotation.json"])
+TEST_ANNOTATION_SAVE_PATH = "/".join([base_dir, "test_annotation.json"])
+TRAIN_DATASET_SAVE_DIR = "/".join([base_dir, "train"])
+TEST_DATASET_SAVE_DIR = "/".join([base_dir, "test"])
 
 
 class TT100K_DataSet(object):
@@ -38,7 +39,7 @@ class TT100K_DataSet(object):
         self._train_set = dict()
         self._test_set = dict()
         self._other_set = dict()
-        self.__init_annotation()
+        self.__init_annotation(recreated=True)
 
     @staticmethod
     def __is_file_exits(file_path):
@@ -84,7 +85,7 @@ class TT100K_DataSet(object):
                 self._train_set[file_dict["path"]] = file_dict["objects"]
             else:
                 print(file_dict["path"])
-        target_width, target_height = 400, 260
+        target_width, target_height = 960, 720
         if recreated:
             print("开始采样训练数据")
             dataset_dict = self.__sample_samples(
@@ -130,7 +131,8 @@ class TT100K_DataSet(object):
             left_up = Point(0, 0)
             right_down = Point(img_width, img_height)
             src_region = Rectangle(left_up, right_down)
-            sample_step = SampleStep(width=50, height=20)
+            sample_step = SampleStep(width=target_width//2,
+                                     height=target_height//2)
             rect_objects_dict = UtilityTools.ergodic_crop_region_with_transform(
                 src_region, object_pos_dict, target_height, target_width,
                 sample_step)
@@ -184,7 +186,6 @@ if __name__ == '__main__':
     class_dict = dict()
     for idx, label in enumerate(class_types):
         class_dict[label] = idx+1
-    with open("TT100K_traffic_sign.json", "w") as handle:
+    with open(TRAFFIC_SIGN_LABEL_PATH, "w") as handle:
         handle.write(json.dumps(
             class_dict, indent=4, sort_keys=False, ensure_ascii=False))
-    # obj_dataset.load_annotation()
