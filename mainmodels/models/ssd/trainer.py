@@ -12,6 +12,7 @@ import math
 import os
 import time
 import pickle
+import json
 
 import tensorflow as tf
 import numpy as np
@@ -48,6 +49,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
         for image_file in image_files:
             image_abs_file = "/".join(
                 [g_SSDConfig.DATASET_BASE_DIR, image_file])
+            image_abs_file = image_file
             image = Image.open(image_abs_file)
             image = np.asarray(image)
             images.append(image)
@@ -185,6 +187,7 @@ def run_training():
                 })
 
                 losses.append(loss)  # TODO: Need mAP metric instead of raw loss
+                print(loss)
 
             # A rough estimate of loss for this epoch (overweights the last batch)
             train_loss = np.mean(losses)
@@ -208,6 +211,7 @@ def run_training():
                     is_training: False
                 })
                 losses.append(loss)
+                print(loss)
             valid_loss = np.mean(losses)
 
             # Record and report train/validation/test losses for this epoch
@@ -238,24 +242,28 @@ def run_training():
 
 
 if __name__ == '__main__':
-    run_training()
-    # base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/raw_prep/prep_data"
-    # prep_train = dict()
-    # prep_test = dict()
-    # for file_path in os.listdir(base_dir):
-    #     if "train" in file_path:
-    #         with open(base_dir+"/"+file_path, "rb") as handle:
-    #             part_train = pickle.load(handle)
-    #             for key, val in part_train.items():
-    #                 prep_train[key] = val
-    #     if "test" in file_path:
-    #         with open(base_dir+"/"+file_path, "rb") as handle:
-    #             part_test = pickle.load(handle)
-    #             for key, val in part_test.items():
-    #                 prep_test[key] = val
-    # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
-    #           "/raw_prep/train_data_prep.pkl", "wb") as handle:
-    #     pickle.dump(prep_train, handle)
+    # run_training()
+    base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
+               "/raw_prep/prep_data/train"
+    prep_train = dict()
+    prep_test = dict()
+    for file_path in os.listdir(base_dir):
+        if "train" in file_path:
+            with open(base_dir+"/"+file_path, "rb") as handle:
+                part_train = pickle.load(handle)
+                for key, val in part_train.items():
+                    prep_train[key] = val
+                    print(type(val))
+        # if "test" in file_path:
+        #     with open(base_dir+"/"+file_path, "rb") as handle:
+        #         part_test = pickle.load(handle)
+        #         for key, val in part_test.items():
+        #             prep_test[key] = val
+    print(prep_train.keys())
+    with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+              "/raw_prep/train_data_prep.pkl", 'wb') as save_handle:
+        pickle.dump(prep_train, save_handle)
+    # print(prep_test.keys())
     # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
     #           "/raw_prep/test_data_prep.pkl", "wb") as handle:
     #     pickle.dump(prep_test, handle)

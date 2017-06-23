@@ -9,7 +9,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import __init
 import numpy as np
 import pickle
 
@@ -163,10 +162,11 @@ if __name__ == '__main__':
     #
     # print('Done. Saved prepared data to %s !' % g_SSDConfig.TRAIN_DATA_PRE_PATH)
     # print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
-
-    sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData/raw_data"
+    #
+    sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+                       "/StandardData/raw_data"
     sub_prep_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                        "/StandardData/raw_prep"
+                        "/StandardData/raw_prep/prep_data"
 
     def sub_call(sub_raw_file):
         abs_file = "/".join([sub_raw_data_dir, sub_raw_file])
@@ -186,7 +186,7 @@ if __name__ == '__main__':
             'Done. Saved prepared data to %s !' % save_abs_file)
         print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
 
-
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         raw_data_file_list = os.listdir(sub_raw_data_dir)
-        futures = [executor.submit(sub_call, sub_raw_file) for sub_raw_file in raw_data_file_list]
+        futures = [executor.submit(sub_call, sub_raw_file)
+                   for sub_raw_file in raw_data_file_list]

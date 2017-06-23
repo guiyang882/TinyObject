@@ -234,21 +234,21 @@ if __name__ == '__main__':
         cnnData = data_engine.CNNData(train_samples_path, batch_size,
                                       original=False)
         print('Training Begin')
-        #
-        # train_loss = []
-        # train_cross_entropy = []
-        # train_bbox_loss = []
-        # start_time = time.time()
-        #
-        # for i in range(1, step + 1):
-        #     batch = cnnData.prepare_data()
-        #     if i <= 7000:
-        #         l_r = 0.001
-        #     else:
-        #         if i <= 9000:
-        #             l_r = 0.0001
-        #         else:
-        #             l_r = 0.00001
+
+        train_loss = []
+        train_cross_entropy = []
+        train_bbox_loss = []
+        start_time = time.time()
+
+        for i in range(1, step + 1):
+            batch = cnnData.prepare_data()
+            if i <= 7000:
+                l_r = 0.001
+            else:
+                if i <= 9000:
+                    l_r = 0.0001
+                else:
+                    l_r = 0.00001
         #     (_, train_loss_iter, train_cross_entropy_iter, train_bbox_loss_iter,
         #      cls, bbox) = sess.run(
         #         [cnn.train_step, cnn.loss, cnn.cross_entropy, cnn.bb_loss,

@@ -25,6 +25,17 @@ wandhG = [[32.0, 32.0], [48.0, 48.0], [64.0, 64.0],
           [48.0, 32.0], [56.0, 48.0], [72.0, 64.0],
           [32.0, 48.0], [48.0, 56.0], [64.0, 72.0]]
 
+def getAllFiles(dirName, subfix):
+    results = []
+
+    for file in os.listdir(dirName):
+        file_path = os.path.join(dirName, file)
+        if os.path.isfile(file_path) and file_path.endswith(subfix):
+            results.append([file_path, os.path.splitext(file)[0]])
+
+    return results
+
+
 class RPN_Test(object):
     def __init__(self):
 

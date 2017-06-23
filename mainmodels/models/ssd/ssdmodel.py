@@ -55,7 +55,6 @@ def ModelHelper(y_pred_conf, y_pred_loc):
         num_total_preds += (fm_size[0] * fm_size[1] *
                             g_SSDConfig.NUM_DEFAULT_BOXES)
     num_total_preds_conf = num_total_preds * g_SSDConfig.NUM_CLASSES
-    print(num_total_preds_conf)
     num_total_preds_loc = num_total_preds * 4
 
     # Input tensors

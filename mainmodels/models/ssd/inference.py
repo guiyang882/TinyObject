@@ -137,8 +137,8 @@ def generate_output(input_files, options):
         # Load trained model
         saver = tf.train.Saver()
         print('Restoring previously trained model at %s' %
-              g_SSDConfig.MODEL_SAVE_PATH)
-        saver.restore(sess, g_SSDConfig.MODEL_SAVE_PATH)
+              g_SSDConfig.PRETRAIN_MODEL_PATH)
+        saver.restore(sess, g_SSDConfig.PRETRAIN_MODEL_PATH)
 
         if options.mode == 'image':
             for image_file in input_files:
@@ -173,6 +173,7 @@ if __name__ == '__main__':
         sign_file_path = "signnames.csv"
         inference_out = "/".join([proj_dir, "data", "inference_out"])
         sample_images_dir = "/".join([proj_dir, "data", "traffic_sign_samples"])
+        # sample_images_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/demo_test"
 
     options = RunOption()
     if options.mode not in ["image", "demo"]:

@@ -80,6 +80,9 @@ class SSDConfig(object):
 
     DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
 
+    PRETRAIN_MODEL_PATH = "/".join(
+        [DATASET_BASE_DIR, "..", "pretrain_model", "model.ckpt"])
+
     TRAIN_DATA_RAW_PATH = "/".join(
         [DATASET_BASE_DIR, "train_data_raw.pkl"])
     TEST_DATA_RAW_PATH = "/".join(
