@@ -14,6 +14,8 @@ import pickle
 
 from concurrent.futures import ThreadPoolExecutor
 
+import __init
+
 from mainmodels.models.ssd.settings import g_SSDConfig
 
 IMG_W = g_SSDConfig.IMG_W
@@ -151,22 +153,10 @@ def do_data_prep(data_raw):
 
 
 if __name__ == '__main__':
-    # with open(g_SSDConfig.TRAIN_DATA_RAW_PATH, 'rb') as f:
-    #     data_raw = pickle.load(f)
-    #
-    # print('Preparing data (i.e. matching boxes)')
-    # data_prep = do_data_prep(data_raw)
-    #
-    # with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, 'wb') as f:
-    #     pickle.dump(data_prep, f)
-    #
-    # print('Done. Saved prepared data to %s !' % g_SSDConfig.TRAIN_DATA_PRE_PATH)
-    # print('Total images with >=1 matching box: %d' % len(data_prep.keys()))
-    #
     sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
                        "/StandardData/raw_data"
     sub_prep_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
-                        "/StandardData/raw_prep/prep_data"
+                        "/StandardData/raw_prep"
 
     def sub_call(sub_raw_file):
         abs_file = "/".join([sub_raw_data_dir, sub_raw_file])

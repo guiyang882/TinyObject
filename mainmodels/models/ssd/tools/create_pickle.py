@@ -20,6 +20,8 @@ import re
 import numpy as np
 from PIL import Image
 
+import __init
+
 from mainmodels.models.ssd.settings import g_SSDConfig
 
 # Script config
@@ -149,6 +151,8 @@ def prepare_raw_data_with_resized(tt100k_annotation_path):
             for label, pos_list in target_pos_dict.items():
                 for box_coords in pos_list:
                     cell_dict = dict()
+                    if label not in sign_map.keys():
+                        continue
                     cell_dict["class"] = sign_map[label]
                     ulc_x, ulc_y, lrc_x, lrc_y = box_coords
                     new_box_coords = (
@@ -158,7 +162,8 @@ def prepare_raw_data_with_resized(tt100k_annotation_path):
                     box_coords = np.array(new_box_coords)
                     cell_dict["box_coords"] = box_coords
                     box_coords_list.append(cell_dict)
-            data_raw[resize_image_file_path] = box_coords_list
+            if box_coords_list:
+                data_raw[resize_image_file_path] = box_coords_list
 
     raw_save_path = g_SSDConfig.TRAIN_DATA_RAW_PATH
     if isTestDataSets:

@@ -131,8 +131,8 @@ class TT100K_DataSet(object):
             left_up = Point(0, 0)
             right_down = Point(img_width, img_height)
             src_region = Rectangle(left_up, right_down)
-            sample_step = SampleStep(width=target_width//2,
-                                     height=target_height//2)
+            sample_step = SampleStep(width=target_width//3 * 2,
+                                     height=target_height//3 * 2)
             rect_objects_dict = UtilityTools.ergodic_crop_region_with_transform(
                 src_region, object_pos_dict, target_height, target_width,
                 sample_step)

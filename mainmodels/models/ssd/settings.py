@@ -25,7 +25,7 @@ class SSDConfig(object):
     NUM_DEFAULT_BOXES = len(DEFAULT_BOXES)
 
     # Constants (TODO: Keep this updated as we go along)
-    NUM_CLASSES = 222  # 221 signs + 1 background class
+    NUM_CLASSES = 11  # 221 signs + 1 background class
     NUM_CHANNELS = 3  # grayscale->1, RGB->3
     NUM_PRED_CONF = NUM_DEFAULT_BOXES * NUM_CLASSES  # number of class predictions per feature map cell
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
@@ -58,7 +58,7 @@ class SSDConfig(object):
     LOC_LOSS_WEIGHT = 1.  # weight of localization loss: loss = conf_loss + LOC_LOSS_WEIGHT * loc_loss
 
     # for Multi-GPU learning
-    GPU_NUMS = 2
+    GPU_NUMS = 1
     TOWER_NAME = "TOWER"
     INIT_LEARNING_RATE = 0.001
     NUM_EPOCHS_PER_DECAY = 350.0
@@ -67,8 +67,8 @@ class SSDConfig(object):
 
     # Training process
     RESUME = False  # resume training from previously saved model?
-    NUM_EPOCH = 200
-    BATCH_SIZE = 16  # batch size for training (relatively small)
+    NUM_EPOCH = 2000
+    BATCH_SIZE = 64  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
