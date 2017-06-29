@@ -66,9 +66,9 @@ class SSDConfig(object):
     MOVING_AVERAGE_DECAY = 0.9999
 
     # Training process
-    RESUME = False  # resume training from previously saved model?
+    RESUME = True  # resume training from previously saved model?
     NUM_EPOCH = 2000
-    BATCH_SIZE = 64  # batch size for training (relatively small)
+    BATCH_SIZE = 100  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
@@ -81,7 +81,7 @@ class SSDConfig(object):
     DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
 
     PRETRAIN_MODEL_PATH = "/".join(
-        [DATASET_BASE_DIR, "..", "pretrain_model", "model.ckpt"])
+        [DATASET_BASE_DIR, "pretrain_model", "model.ckpt"])
 
     TRAIN_DATA_RAW_PATH = "/".join(
         [DATASET_BASE_DIR, "train_data_raw.pkl"])

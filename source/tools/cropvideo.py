@@ -3,6 +3,7 @@
 import numpy as np
 import importlib
 
+import os
 import sys
 sys.path.append("/usr/local/Cellar/opencv3/3.2.0/lib/python3.6/site-packages")
 importlib.reload(sys)
@@ -12,7 +13,7 @@ import matplotlib.pylab as plt
 
 class VideoTracking():
     def __init__(self):
-        self.video_dir = "/Volumes/Ubuntu/VideoData/JL1st-Video"
+        self.video_dir = "/Volumes/projects/第三方数据下载/JL1ST"
         self.video_name = \
             "JL101B_MSS_20161017092509_000014631_101_001_L1B_MSS.mp4"
         self.cap, self.prev, self.cur = None, None, None
@@ -54,6 +55,9 @@ class VideoTracking():
             if True:
                 save_prefix = "/".join([self.video_dir,
                                         "SRC_"+self.video_name.split(".")[0]])
+                if not os.path.isdir(save_prefix):
+                    os.makedirs(save_prefix)
+
                 for i in range(4):
                     filename = "%d_%d_%d_%d_%04d.png" % (subImages[i][0],
                                                          subImages[i][1],
@@ -61,8 +65,7 @@ class VideoTracking():
                                                          subImages[i][3],
                                                          self.frameInd)
                     filepath = "/".join([save_prefix, filename])
-                    cv2.imwrite(filepath, subImages[i][4],
-                                [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+                    cv2.imwrite(filepath, subImages[i][4])
                     print(filepath)
                 self.frameInd += 1
         self.cam.release()

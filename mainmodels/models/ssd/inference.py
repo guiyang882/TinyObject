@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import os
 import time
+import json
 
 import numpy as np
 import tensorflow as tf
@@ -115,11 +116,11 @@ def generate_output(input_files, options):
     if not os.path.exists(options.sign_file_path):
         raise IOError(options.sign_file_path + " not found !")
     # First, load mapping from integer class ID to sign name string
-    sign_map = {}
-    with open(options.sign_file_path, 'r') as f:
-        for line in f:
-            sign_id, sign_name = line.strip().split(',')
-            sign_map[int(sign_id)] = sign_name
+    sign_map = dict()
+    with open(options.sign_file_path, "r") as handle:
+        r_sign_map = json.load(handle)
+        for key, val in r_sign_map.items():
+            sign_map[val] = key
     sign_map[0] = 'background'  # class ID 0 reserved for background class
 
     # Create output directory 'inference_out/' if needed
@@ -165,15 +166,14 @@ def generate_output(input_files, options):
 
 
 if __name__ == '__main__':
-    proj_dir = "/".join(os.path.abspath(__file__).split("/")[:-4])
+    proj_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
 
     class RunOption(object):
         input_dir = "input_dir"
         mode = "demo"
-        sign_file_path = "signnames.csv"
-        inference_out = "/".join([proj_dir, "data", "inference_out"])
-        sample_images_dir = "/".join([proj_dir, "data", "traffic_sign_samples"])
-        # sample_images_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/demo_test"
+        sign_file_path = g_SSDConfig.tt100k_traffic_sign_path
+        inference_out = "/".join([proj_dir, "demo_test_res"])
+        sample_images_dir = "/".join([proj_dir, "demo_test"])
 
     options = RunOption()
     if options.mode not in ["image", "demo"]:

@@ -224,19 +224,21 @@ def run_training():
                 (epoch + 1, train_loss, valid_loss, time.time() - last_time))
             last_time = time.time()
 
+            if g_SSDConfig.SAVE_MODEL and epoch % 5 == 0:
+                # Save model to disk
+                save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
+                print('Trained model saved at: %s' % save_path)
+
+                # Also save accuracy history
+                print('Loss history saved at loss_history.pkl')
+                with open(g_SSDConfig.LOSS_HISTORY_PATH, 'wb') as f:
+                    pickle.dump(loss_history, f)
+
         total_time = time.time() - train_start_time
         print('Total elapsed time: %d min %d sec' % (
             total_time / 60, total_time % 60))
 
-        if g_SSDConfig.SAVE_MODEL:
-            # Save model to disk
-            save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
-            print('Trained model saved at: %s' % save_path)
 
-            # Also save accuracy history
-            print('Loss history saved at loss_history.pkl')
-            with open(g_SSDConfig.LOSS_HISTORY_PATH, 'wb') as f:
-                pickle.dump(loss_history, f)
 
     # Return final test accuracy and accuracy_history
     return loss_history

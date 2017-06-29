@@ -8,6 +8,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+import json
+
 import numpy as np
 
 from mainmodels.models.ssd.settings import g_SSDConfig
@@ -33,11 +36,18 @@ def nms(y_pred_conf, y_pred_loc, prob):
 			Remember to rescale box coordinates if your target image has different dimensions.
 	"""
     # Keep track of boxes for each class
-    class_boxes = {}  # class -> [(x1, y1, x2, y2, prob), (...), ...]
-    with open('signnames.csv', 'r') as f:
-        for line in f:
-            cls, _ = line.split(',')
-            class_boxes[float(cls)] = []
+    # class_boxes = {}  # class -> [(x1, y1, x2, y2, prob), (...), ...]
+    # with open('signnames.csv', 'r') as f:
+    #     for line in f:
+    #         cls, _ = line.split(',')
+    #         class_boxes[float(cls)] = []
+    if not os.path.exists(g_SSDConfig.tt100k_traffic_sign_path):
+        raise IOError("tt100k_traffic_sign_path Not Found !")
+    class_boxes = {}
+    with open(g_SSDConfig.tt100k_traffic_sign_path, "r") as handle:
+        traffic_label_dict = json.load(handle)
+        for key, val in traffic_label_dict.items():
+            class_boxes[val] = list()
 
     # Go through all possible boxes and perform class-based greedy NMS (greedy based on class prediction confidence)
     y_idx = 0
