@@ -18,6 +18,8 @@ import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
 
+import __init
+
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.ssdmodel import SSDModel
 from mainmodels.models.ssd.tools.NMS import nms
@@ -68,6 +70,9 @@ def run_inference(image, model, sess, sign_map):
     print('Inference took %.1f ms (%.2f fps)' % (
         (time.time() - t0) * 1000, 1 / (time.time() - t0)))
 
+    print("preds_conf_val", preds_conf_val)
+    print("preds_loc_val", preds_loc_val)
+    print("probs_val", probs_val)
     # Gather class predictions and confidence values
     y_pred_conf = preds_conf_val[0]  # batch size of 1, so just take [0]
     y_pred_conf = y_pred_conf.astype('float32')
@@ -91,6 +96,7 @@ def run_inference(image, model, sess, sign_map):
     if len(boxes) > 0:
         boxes[:, :4] = boxes[:, :4] * scale
 
+    print("boxes: ", boxes)
     # Draw and annotate boxes over original image, and return annotated image
     image = image_orig
     for box in boxes:
@@ -148,8 +154,8 @@ def generate_output(input_files, options):
                 image = run_inference(image_orig, model, sess, sign_map)
 
                 head, tail = os.path.split(image_file)
-                plt.imsave('./inference_out/%s' % tail, image)
-            print('Output saved in inference_out/')
+                cv2.imwrite('%s/%s' % (options.inference_out, tail), image)
+            print('Output saved in %s' % options.inference_out)
 
         elif options.mode == 'demo':
             print('Demo mode: Running inference on images in sample_images/')
@@ -161,16 +167,23 @@ def generate_output(input_files, options):
                 image_orig = np.asarray(
                     Image.open("/".join([options.sample_images_dir, image_file])))
                 image = run_inference(image_orig, model, sess, sign_map)
-                plt.imshow(image)
-                plt.show()
+                cv2.imshow("res", image)
+                cv2.waitKey()
+                # plt.imshow(image)
+                # plt.show()
 
 
 if __name__ == '__main__':
-    proj_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    if g_SSDConfig.MODEL == "AlexNet":
+        proj_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    elif g_SSDConfig.MODEL == "NWPUNet":
+        proj_dir = "/Volumes/projects/NWPU-VHR-10-dataset"
+    else:
+        pass
 
     class RunOption(object):
         input_dir = "input_dir"
-        mode = "demo"
+        mode = "image"
         sign_file_path = g_SSDConfig.tt100k_traffic_sign_path
         inference_out = "/".join([proj_dir, "demo_test_res"])
         sample_images_dir = "/".join([proj_dir, "demo_test"])
@@ -179,5 +192,10 @@ if __name__ == '__main__':
     if options.mode not in ["image", "demo"]:
         raise ValueError('Invalid mode: %s' % options.mode)
 
+    demo_lists = os.listdir(options.sample_images_dir)
+
     input_files = []
+    for item in demo_lists:
+        if item.endswith("png") or item.endswith("jpg"):
+            input_files.append(options.sample_images_dir+"/"+item)
     generate_output(input_files, options)

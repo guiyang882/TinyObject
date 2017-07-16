@@ -13,6 +13,7 @@ import tensorflow.contrib.slim as slim
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.featuremodel.alexnet import AlexNet
+from mainmodels.models.ssd.featuremodel.nwpunet import NWPUNet
 
 
 def SSDHook(feature_map, hook_id):
@@ -132,6 +133,8 @@ def SSDModel():
 	"""
     if g_SSDConfig.MODEL == 'AlexNet':
         model = AlexNet()
+    elif g_SSDConfig.MODEL == "NWPUNet":
+        model = NWPUNet()
     else:
         raise NotImplementedError('Model %s not supported' % g_SSDConfig.MODEL)
 
@@ -144,3 +147,6 @@ def SSDModel():
         ssd_model[k] = model_helper[k]
 
     return ssd_model
+
+if __name__ == '__main__':
+    obj = SSDModel()

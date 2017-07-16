@@ -16,17 +16,34 @@ proj_dir = "/".join(os.path.abspath(__file__).split("/")[:-4])
 print(proj_dir)
 
 class SSDConfig(object):
+    # Model selection and dependent parameters
+    MODEL = 'NWPUNet'  # AlexNet/VGG16/ResNet50
+
     # Default boxes
     # DEFAULT_BOXES = ((x1_offset, y1_offset, x2_offset, y2_offset), (...), ...)
     # Offset is relative to upper-left-corner and lower-right-corner of the feature map cell
-    DEFAULT_BOXES = (
-        (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2), (-0.8, -0.2, 0.8, 0.2),
-        (-0.2, -0.8, 0.2, 0.8))
+    if MODEL == "AlexNet":
+        DEFAULT_BOXES = (
+            (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
+            (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
+        )
+    elif MODEL == "NWPUNet":
+        DEFAULT_BOXES = (
+            (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
+            (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
+        )
+    else:
+        pass
     NUM_DEFAULT_BOXES = len(DEFAULT_BOXES)
 
     # Constants (TODO: Keep this updated as we go along)
-    NUM_CLASSES = 11  # 221 signs + 1 background class
-    NUM_CHANNELS = 3  # grayscale->1, RGB->3
+    if MODEL == "AlexNet":
+        NUM_CLASSES = 222  # 221 signs + 1 background class
+    elif MODEL == "NWPUNet":
+        NUM_CLASSES = 9  # 8 signs + 1 background class
+    else:
+        raise NotImplementedError('Model not implemented')
+    NUM_CHANNELS = 1  # grayscale->1, RGB->3
     NUM_PRED_CONF = NUM_DEFAULT_BOXES * NUM_CLASSES  # number of class predictions per feature map cell
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
@@ -40,15 +57,15 @@ class SSDConfig(object):
     # Class confidence threshold to count as detection
     CONF_THRESH = 0.9
 
-    # Model selection and dependent parameters
-    MODEL = 'AlexNet'  # AlexNet/VGG16/ResNet50
     if MODEL == 'AlexNet':
-        # IMG_H, IMG_W = 300, 300
-        # FM_SIZES = [[36, 36], [17, 17], [9, 9], [5, 5]]  # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
-
-        # IMG_H, IMG_W = 720, 960
         IMG_H, IMG_W = 260, 400
+        # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
         FM_SIZES = [[31, 48], [15, 23], [8, 12], [4, 6]]
+    if MODEL == "NWPUNet":
+        IMG_H, IMG_W = 400, 600
+        # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
+        # FM_SIZES = [[100, 150], [50, 75], [25, 38], [13, 19]]
+        FM_SIZES = [[50, 75], [25, 37], [13, 19]]
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -72,13 +89,22 @@ class SSDConfig(object):
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
-    MODEL_SAVE_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
-                                "train", "model.ckpt"])
-    LOSS_HISTORY_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
-                                  "loss_history.pkl"])
-    TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
-
-    DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    if MODEL == "AlexNet":
+        MODEL_SAVE_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
+                                    "train", "model.ckpt"])
+        LOSS_HISTORY_PATH = "/".join([proj_dir, "mainmodels", "log", "ssd",
+                                      "loss_history.pkl"])
+        TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
+        DATASET_BASE_DIR = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
+    elif MODEL == "NWPUNet":
+        MODEL_SAVE_PATH = "/".join([proj_dir, "mainmodels", "log", "nwpu",
+                                    "train", "model.ckpt"])
+        LOSS_HISTORY_PATH = "/".join([proj_dir, "mainmodels", "log", "nwpu",
+                                      "loss_history.pkl"])
+        TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
+        DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
+    else:
+        raise NotImplementedError('Model not implemented')
 
     PRETRAIN_MODEL_PATH = "/".join(
         [DATASET_BASE_DIR, "pretrain_model", "model.ckpt"])
@@ -104,5 +130,7 @@ class SSDConfig(object):
     tt100k_test_annotation_path = "/".join(
         [DATASET_BASE_DIR, "test_annotation.json"])
 
+    nwpu_train_annotation_path = "/".join(
+        [DATASET_BASE_DIR, "train_annotation.pkl"])
 
 g_SSDConfig = SSDConfig()

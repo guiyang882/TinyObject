@@ -226,7 +226,7 @@ def run_training():
 
             if g_SSDConfig.SAVE_MODEL and epoch % 5 == 0:
                 # Save model to disk
-                save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
+                save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH, global_step=epoch)
                 print('Trained model saved at: %s' % save_path)
 
                 # Also save accuracy history
@@ -245,9 +245,14 @@ def run_training():
 
 
 if __name__ == '__main__':
-    run_training()
-    # base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
-    #            "/raw_prep/prep_data"
+    if g_SSDConfig.MODEL == "AlexNet":
+        base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
+               "/raw_prep/prep_data"
+    elif g_SSDConfig.MODEL == "NWPUNet":
+        base_dir = "/Volumes/projects/NWPU-VHR-10-dataset/raw_prep/prep_data"
+    else:
+        raise NotImplementedError('Model not implemented')
+
     # prep_train = dict()
     # prep_test = dict()
     # for file_path in os.listdir(base_dir):
@@ -263,10 +268,10 @@ if __name__ == '__main__':
     #             for key, val in part_test.items():
     #                 prep_test[key] = val
     # print(prep_train.keys())
-    # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
-    #           "/raw_prep/train_data_prep.pkl", 'wb') as save_handle:
+    # with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, 'wb') as save_handle:
     #     pickle.dump(prep_train, save_handle)
     # print(prep_test.keys())
-    # with open("/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
-    #           "/raw_prep/test_data_prep.pkl", "wb") as handle:
+    # with open(g_SSDConfig.TEST_DATA_PRE_PATH, "wb") as handle:
     #     pickle.dump(prep_test, handle)
+
+    run_training()

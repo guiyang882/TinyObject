@@ -85,7 +85,7 @@ class TT100K_DataSet(object):
                 self._train_set[file_dict["path"]] = file_dict["objects"]
             else:
                 print(file_dict["path"])
-        target_width, target_height = 960, 720
+        target_width, target_height = 400, 260
         if recreated:
             print("开始采样训练数据")
             dataset_dict = self.__sample_samples(

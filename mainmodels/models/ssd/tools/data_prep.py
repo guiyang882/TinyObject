@@ -153,10 +153,16 @@ def do_data_prep(data_raw):
 
 
 if __name__ == '__main__':
-    sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+    if g_SSDConfig.MODEL == "AlexNet":
+        sub_raw_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
                        "/StandardData/raw_data"
-    sub_prep_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
+        sub_prep_data_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua" \
                         "/StandardData/raw_prep"
+    elif g_SSDConfig.MODEL == "NWPUNet":
+        sub_raw_data_dir = "/".join([g_SSDConfig.DATASET_BASE_DIR, "raw_data"])
+        sub_prep_data_dir = "/".join([g_SSDConfig.DATASET_BASE_DIR, "raw_prep"])
+    else:
+        raise NotImplementedError('Model not implemented')
 
     def sub_call(sub_raw_file):
         abs_file = "/".join([sub_raw_data_dir, sub_raw_file])
