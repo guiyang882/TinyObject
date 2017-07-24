@@ -40,7 +40,7 @@ class SSDConfig(object):
     if MODEL == "AlexNet":
         NUM_CLASSES = 222  # 221 signs + 1 background class
     elif MODEL == "NWPUNet":
-        NUM_CLASSES = 9  # 8 signs + 1 background class
+        NUM_CLASSES = 6  # 8 signs + 1 background class
     else:
         raise NotImplementedError('Model not implemented')
     NUM_CHANNELS = 1  # grayscale->1, RGB->3
@@ -48,14 +48,14 @@ class SSDConfig(object):
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
     # Bounding box parameters
-    IOU_THRESH = 0.5  # match ground-truth box to default boxes exceeding this IOU threshold, during data prep
+    IOU_THRESH = 0.45  # match ground-truth box to default boxes exceeding this IOU threshold, during data prep
     NMS_IOU_THRESH = 0.2  # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
 
     # Class confidence threshold to count as detection
-    CONF_THRESH = 0.9
+    CONF_THRESH = 0.62
 
     if MODEL == 'AlexNet':
         IMG_H, IMG_W = 260, 400
@@ -83,9 +83,9 @@ class SSDConfig(object):
     MOVING_AVERAGE_DECAY = 0.9999
 
     # Training process
-    RESUME = True  # resume training from previously saved model?
-    NUM_EPOCH = 2000
-    BATCH_SIZE = 100  # batch size for training (relatively small)
+    RESUME = True # resume training from previously saved model?
+    NUM_EPOCH = 5000
+    BATCH_SIZE = 16  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
@@ -107,7 +107,7 @@ class SSDConfig(object):
         raise NotImplementedError('Model not implemented')
 
     PRETRAIN_MODEL_PATH = "/".join(
-        [DATASET_BASE_DIR, "pretrain_model", "model.ckpt"])
+        [DATASET_BASE_DIR, "pretrain_model", "model-4995.ckpt-4995"])
 
     TRAIN_DATA_RAW_PATH = "/".join(
         [DATASET_BASE_DIR, "train_data_raw.pkl"])
@@ -124,7 +124,8 @@ class SSDConfig(object):
     RESIZED_IMAGES_DIR = "/".join([DATASET_BASE_DIR, "resized_images"])
 
     tt100k_traffic_sign_path = "/".join(
-        [DATASET_BASE_DIR, "TT100K_traffic_sign.json"])
+        [DATASET_BASE_DIR, "allLabel.json"])
+        #[DATASET_BASE_DIR, "TT100K_traffic_sign.json"])
     tt100k_train_annotation_path = "/".join(
         [DATASET_BASE_DIR, "train_annotation.json"])
     tt100k_test_annotation_path = "/".join(
@@ -132,5 +133,7 @@ class SSDConfig(object):
 
     nwpu_train_annotation_path = "/".join(
         [DATASET_BASE_DIR, "train_annotation.pkl"])
+    nwpu_sign_path = "/".join(
+        [DATASET_BASE_DIR, "allLabel.json"])
 
 g_SSDConfig = SSDConfig()

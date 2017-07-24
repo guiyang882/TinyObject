@@ -202,6 +202,7 @@ def prepare_Train_Test_Sample(positive_path, negative_path, save_prefix):
             example = tf.train.Example(features=tf.train.Features(
                 feature={
                     'feature': _bytes_feature(feature.tobytes())
+                    # "label": _bytes_feature(label.to_bytes())
                 }))
             writer.write(example.SerializeToString())
         writer.close()

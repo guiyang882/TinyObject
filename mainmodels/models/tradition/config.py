@@ -19,12 +19,14 @@ class DataSet:
     class_labels = [0, 1]
 
 class BaseConfig(object):
-    train_samplesp_path = "/Users/liuguiyang/Downloads/AirplaneSamples/input/train.tfrecords"
-    test_samples_path = "/Users/liuguiyang/Downloads/AirplaneSamples/input/test.tfrecords"
+    train_samplesp_path = "/Volumes/projects/NWPU-VHR-10-dataset/substration" \
+                          "/train_samples/train.tfrecords"
+    test_samples_path = "/Volumes/projects/NWPU-VHR-10-dataset/substration" \
+                        "/train_samples/test.tfrecords"
 
     # image info
-    image_width = 48
-    image_height = 48
+    image_width = 90
+    image_height = 90
     image_depth = 1
 
     sample_ratio = {
@@ -33,12 +35,16 @@ class BaseConfig(object):
         "valid": 0.1
     }
     batch_size = 96
-    NUM_CLASSES = 2
-    NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2986
+    NUM_CLASSES = 6
+    NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 8471
     NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 747
     labels = {
-        "neg": 0,
-        "pos": 1
+        "background": 0,
+        "airplane": 1,
+        "ship": 2,
+        "storage_tank": 3,
+        "harbor": 4,
+        "bridge": 5
     }
 
     # Constants describing the training process.

@@ -7,6 +7,8 @@ import time
 from datetime import datetime
 
 import tensorflow as tf
+
+import __init
 from mainmodels.models.tradition.cnn import model
 from mainmodels.models.tradition.config import g_CNNConfig
 
@@ -16,7 +18,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', g_CNNConfig.train_log_dir,
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 20000,
+tf.app.flags.DEFINE_integer('max_steps', 30000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -79,7 +81,6 @@ def train():
 
 def main(argv=None):
     train()
-
 
 if __name__ == '__main__':
     tf.app.run()

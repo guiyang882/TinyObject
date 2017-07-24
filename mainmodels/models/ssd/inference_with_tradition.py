@@ -17,7 +17,6 @@ import tensorflow as tf
 import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
-#from svm_class import classify
 
 import __init
 
@@ -26,7 +25,7 @@ from mainmodels.models.ssd.ssdmodel import SSDModel
 from mainmodels.models.ssd.tools.NMS import nms
 
 
-def run_inference(image, model, sess, sign_map):
+def run_inference(image, model, sess):
     """
 	Run inference on a given image
 
@@ -71,9 +70,9 @@ def run_inference(image, model, sess, sign_map):
     print('Inference took %.1f ms (%.2f fps)' % (
         (time.time() - t0) * 1000, 1 / (time.time() - t0)))
 
-    print("preds_conf_val", preds_conf_val)
-    print("preds_loc_val", preds_loc_val)
-    print("probs_val", probs_val)
+    #print("preds_conf_val", preds_conf_val)
+    #print("preds_loc_val", preds_loc_val)
+    #print("probs_val", probs_val)
     # Gather class predictions and confidence values
     y_pred_conf = preds_conf_val[0]  # batch size of 1, so just take [0]
     y_pred_conf = y_pred_conf.astype('float32')
@@ -84,7 +83,6 @@ def run_inference(image, model, sess, sign_map):
 
     # Perform NMS
     boxes = nms(y_pred_conf, y_pred_loc, prob)
-    #boxes = classify(boxes)
     print('Inference + NMS took %.1f ms (%.2f fps)' % (
         (time.time() - t0) * 1000, 1 / (time.time() - t0)))
 
@@ -98,40 +96,23 @@ def run_inference(image, model, sess, sign_map):
     if len(boxes) > 0:
         boxes[:, :4] = boxes[:, :4] * scale
 
-    print("boxes: ", boxes)
+    #print("boxes: ", boxes)
     # Draw and annotate boxes over original image, and return annotated image
-    image = image_orig
+    ret_ssd_res = []
     for box in boxes:
         # Get box parameters
         box_coords = [int(round(x)) for x in box[:4]]
         cls = int(box[4])
         cls_prob = box[5]
+        ret_ssd_res.append(box_coords)
 
-        # Annotate image
-        image = cv2.rectangle(image, tuple(box_coords[:2]),
-                              tuple(box_coords[2:]), (0, 255, 0))
-        label_str = '%s %.2f' % (sign_map[cls], cls_prob)
-        image = cv2.putText(image, label_str, (box_coords[0], box_coords[1]), 0,
-                            0.5, (0, 255, 0), 1, cv2.LINE_AA)
-
-    return image
+    return ret_ssd_res
 
 
 def generate_output(input_files, options):
     """
 	Generate annotated images, videos, or sample images, based on mode
 	"""
-    print(options.sign_file_path)
-    if not os.path.exists(options.sign_file_path):
-        raise IOError(options.sign_file_path + " not found !")
-    # First, load mapping from integer class ID to sign name string
-    sign_map = dict()
-    with open(options.sign_file_path, "r") as handle:
-        r_sign_map = json.load(handle)
-        for key, val in r_sign_map.items():
-            sign_map[val] = key
-    sign_map[0] = 'background'  # class ID 0 reserved for background class
-
     # Create output directory 'inference_out/' if needed
     if not os.path.isdir(options.inference_out):
         try:
@@ -150,33 +131,19 @@ def generate_output(input_files, options):
               g_SSDConfig.PRETRAIN_MODEL_PATH)
         saver.restore(sess, g_SSDConfig.PRETRAIN_MODEL_PATH)
 
+        data2cnn = dict()
         if options.mode == 'image':
             for image_file in input_files:
                 print('Running inference on %s' % image_file)
                 image_orig = np.asarray(Image.open(image_file))
-                image = run_inference(image_orig, model, sess, sign_map)
+                ret_ssd_res = run_inference(image_orig, model, sess)
+                data2cnn[image_file] = ret_ssd_res
 
-                head, tail = os.path.split(image_file)
-                cv2.imwrite('%s/%s' % (options.inference_out, tail), image)
-            print('Output saved in %s' % options.inference_out)
-
-        elif options.mode == 'demo':
-            print('Demo mode: Running inference on images in sample_images/')
-            image_files = os.listdir(options.sample_images_dir)
-
-            for image_file in image_files:
-                print('Running inference on %s/%s' % (
-                    options.sample_images_dir, image_file))
-                image_orig = np.asarray(
-                    Image.open("/".join([options.sample_images_dir, image_file])))
-                image = run_inference(image_orig, model, sess, sign_map)
-                cv2.imshow("res", image)
-                cv2.waitKey()
-                # plt.imshow(image)
-                # plt.show()
+        return data2cnn
 
 
-if __name__ == '__main__':
+def interface_with_cnn(file_path_list):
+    sign_file_path = ""
     if g_SSDConfig.MODEL == "AlexNet":
         proj_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
         sign_file_path = g_SSDConfig.tt100k_traffic_sign_path
@@ -184,24 +151,17 @@ if __name__ == '__main__':
         proj_dir = "/Volumes/projects/NWPU-VHR-10-dataset"
         sign_file_path = g_SSDConfig.nwpu_sign_path
     else:
-        pass
-
+        raise IOError("Not !!!!")
+    print(sign_file_path)
     class RunOption(object):
         input_dir = "input_dir"
         mode = "image"
-        sign_file_path = sign_file_path
+        sign_file_path =  ""
         inference_out = "/".join([proj_dir, "demo_test_res"])
         sample_images_dir = "/".join([proj_dir, "demo_test"])
+        def __init__(self, sign_path):
+            self.sign_file_path = sign_path
 
-    options = RunOption()
-    if options.mode not in ["image", "demo"]:
-        raise ValueError('Invalid mode: %s' % options.mode)
-
-    demo_lists = os.listdir(options.sample_images_dir)
-
-    input_files = []
-    for item in demo_lists:
-        if item.endswith("png") or item.endswith("jpg"):
-            input_files.append(options.sample_images_dir+"/"+item)
-    generate_output(input_files, options)
+    options = RunOption(sign_file_path)
+    return generate_output(file_path_list, options)
 

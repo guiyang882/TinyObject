@@ -13,9 +13,9 @@ import matplotlib.pylab as plt
 
 class VideoTracking():
     def __init__(self):
-        self.video_dir = "/Volumes/projects/第三方数据下载/JL1ST"
+        self.video_dir = "/Volumes/projects/第三方数据下载/长光卫星高清视频第二批/处理的视频"
         self.video_name = \
-            "JL101B_MSS_20161017092509_000014631_101_001_L1B_MSS.mp4"
+            "20170602-美国-明尼阿波利斯01.mp4"
         self.cap, self.prev, self.cur = None, None, None
         self.isFirst = True
         self.track_len = 10

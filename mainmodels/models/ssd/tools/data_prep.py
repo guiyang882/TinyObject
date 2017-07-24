@@ -44,7 +44,8 @@ def calc_iou(box_a, box_b):
     area_box_a = (box_a[2] - box_a[0]) * (box_a[3] - box_a[1])
     area_box_b = (box_b[2] - box_b[0]) * (box_b[3] - box_b[1])
     union = area_box_a + area_box_b - intersection
-
+    if union == 0.0:
+        return 0
     iou = intersection / union
     return iou
 
@@ -115,10 +116,10 @@ def find_gt_boxes(image_file, signs_data):
                             match_counter += 1
 
                             # Calculate normalized box coordinates and update y_true_loc
-                            abs_box_center = np.array(
-                                [col + 0.5, row + 0.5])  # absolute
-                            # coordinates of center of feature map cell
-                            abs_gt_box_coords = gt_box_coords * scale  # absolute ground truth box coordinates (in feature map grid)
+                            # absolute coordinates of center of feature map cell
+                            abs_box_center = np.array([col + 0.5, row + 0.5])
+                            # absolute ground truth box coordinates (in feature map grid)
+                            abs_gt_box_coords = gt_box_coords * scale
                             norm_box_coords = abs_gt_box_coords - np.concatenate(
                                 (abs_box_center, abs_box_center))
                             y_true_loc[
@@ -163,6 +164,9 @@ if __name__ == '__main__':
         sub_prep_data_dir = "/".join([g_SSDConfig.DATASET_BASE_DIR, "raw_prep"])
     else:
         raise NotImplementedError('Model not implemented')
+
+    if not os.path.isdir(sub_prep_data_dir):
+        os.makedirs(sub_prep_data_dir)
 
     def sub_call(sub_raw_file):
         abs_file = "/".join([sub_raw_data_dir, sub_raw_file])
