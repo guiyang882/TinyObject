@@ -49,7 +49,7 @@ class SSDConfig(object):
 
     # Bounding box parameters
     IOU_THRESH = 0.45  # match ground-truth box to default boxes exceeding this IOU threshold, during data prep
-    NMS_IOU_THRESH = 0.2  # IOU threshold for non-max suppression
+    NMS_IOU_THRESH = 0.2 # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
@@ -107,7 +107,7 @@ class SSDConfig(object):
         raise NotImplementedError('Model not implemented')
 
     PRETRAIN_MODEL_PATH = "/".join(
-        [DATASET_BASE_DIR, "pretrain_model", "model-4995.ckpt-4995"])
+        [DATASET_BASE_DIR, "pretrain_model", "model.ckpt-740"])
 
     TRAIN_DATA_RAW_PATH = "/".join(
         [DATASET_BASE_DIR, "train_data_raw.pkl"])

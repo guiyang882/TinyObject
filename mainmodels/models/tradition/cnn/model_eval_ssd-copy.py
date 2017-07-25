@@ -119,34 +119,6 @@ def boxes_generation(box):
 
     return gene_boxes
 
-def fm_boxes_generation(box):
-    fm_sizes = [[8,8],[16,16],[30,30]]
-    anchor_sizes = [[2,2],[0.6,0.6],[2.6,1.4],[1.4,2.6]]
-
-    box_h = box[3] - box[1]
-    box_w = box[2] - box[0]
-    box_h = int(math.fabs(box_h))
-    box_w = int(math.fabs(box_w))
-
-    center = [round((box[2] + box[0])/2), round((box[3] + box[1])/2)]
-
-    gene_boxes = []
-    for fm in fm_sizes:
-        for anchor in anchor_sizes:
-            new_width, new_height = list(np.array(fm) * np.array(anchor))
-
-            x1,y1,x2,y2 = max(center[0] - round(new_width / 2),0),\
-                          max(center[1] - round(new_height / 2),0),\
-                          min(center[0] + round(new_width / 2), g_SSDConfig.IMG_H),\
-                          min(center[1] + round(new_height / 2), g_SSDConfig.IMG_H)
-            if x1 >= x2 or y1 >= y2:
-                continue
-            if x2 - x1 <= 3 or y2 - y1 <= 3:
-                continue
-            gene_boxes.append([int(x1),int(y1),int(x2),int(y2)])
-    gene_boxes.append(box[:4])
-    return gene_boxes
-
 
 def crop_image_with_boxes(filepath, boxes):
     if not os.path.exists(filepath):
@@ -191,7 +163,6 @@ def NMS(boxes,class_label,class_prob):
         cls_prob = class_prob[i]
         if cls_prob > g_SSDConfig.CONF_THRESH and cls > 0.:
             box = (*box_coords, cls, cls_prob)
-
             # print("box",box)
             if len(class_boxes[cls]) == 0:
                 class_boxes[cls].append(box)
@@ -200,8 +171,7 @@ def NMS(boxes,class_label,class_prob):
                 overlapped = False  # did this box overlap with other box(es)?
                 for other_box in class_boxes[cls]:
                     iou = calc_iou(box[:4], other_box[:4])
-
-                    if iou > g_SSDConfig.NMS_IOU_THRESH :
+                    if iou > g_SSDConfig.NMS_IOU_THRESH:
                         overlapped = True
                         # If current box has higher confidence than other box
                         if box[5] > other_box[5]:
@@ -232,14 +202,13 @@ def main(argv=None):  # pylint: disable=unused-argument
     for item in demo_lists:
         if item.endswith("png") or item.endswith("jpg"):
             input_files.append(sample_images_dir+"/"+item)
-    input_files = input_files[:10]
+    # input_files = input_files[:1]
     ret_ssd_res = interface_with_cnn(input_files)
     for file_path, boxes in ret_ssd_res.items():
         print("file_path: %s" % file_path)
         selected_boxes = []
         for box in boxes:
-            # tmp = boxes_generation(box)
-            tmp = fm_boxes_generation(box)
+            tmp = boxes_generation(box)
             selected_boxes.extend(tmp)
         # new_selected_box = sample_num * 4
         ssd_output_images, new_selected_boxes = crop_image_with_boxes(file_path, selected_boxes)
@@ -252,23 +221,23 @@ def main(argv=None):  # pylint: disable=unused-argument
         # nms_boxes = sample_num * 6
         nms_boxes = NMS(new_selected_boxes,class_label_list,class_prob_list)
 
-        # image = cv2.imread(file_path)
+        image = cv2.imread(file_path)
         print("len of selected_boxes: %d" % len(new_selected_boxes))
-        # for i, selected_box in enumerate(new_selected_boxes):
-        #     box_coords = selected_box
-        #     pred_prob = class_label_list[i]
-        #     pred_cls = class_prob_list[i]
-        #     # print(box_coords)
-        #     try:
-        #         image = cv2.rectangle(image, tuple(box_coords[:2]), tuple(box_coords[2:4]), (0, 255, 0))
-        #     except:
-        #         print(tuple(box_coords[:2]), tuple(box_coords[2:4]))
-        #     label_str = '%d %.2f' % (pred_cls, pred_prob)
-        #     image = cv2.putText(image, label_str, (box_coords[0], box_coords[1]), 0,
-        #                         0.5, (0, 255, 0), 1, cv2.LINE_AA)
-        # no_nms_img_filename = "/Volumes/projects/NWPU-VHR-10-dataset/demo_test_res/" + os.path.split(file_path)[1]
-        # cv2.imwrite(no_nms_img_filename, image)
-        # print(no_nms_img_filename)
+        for i, selected_box in enumerate(new_selected_boxes):
+            box_coords = selected_box
+            pred_prob = class_label_list[i]
+            pred_cls = class_prob_list[i]
+            # print(box_coords)
+            try:
+                image = cv2.rectangle(image, tuple(box_coords[:2]), tuple(box_coords[2:4]), (0, 255, 0))
+            except:
+                print(tuple(box_coords[:2]), tuple(box_coords[2:4]))
+            label_str = '%d %.2f' % (pred_cls, pred_prob)
+            image = cv2.putText(image, label_str, (box_coords[0], box_coords[1]), 0,
+                                0.5, (0, 255, 0), 1, cv2.LINE_AA)
+        no_nms_img_filename = "/Volumes/projects/NWPU-VHR-10-dataset/demo_test_res/" + os.path.split(file_path)[1]
+        cv2.imwrite(no_nms_img_filename, image)
+        print(no_nms_img_filename)
         # break
 
         image_orig = cv2.imread(file_path)
@@ -286,10 +255,9 @@ def main(argv=None):  # pylint: disable=unused-argument
             label_str = '%d %.2f' % (pred_cls, pred_prob)
             image_orig = cv2.putText(image_orig, label_str, (box_coords[0], box_coords[1]), 0,
                                 0.5, (0, 255, 0), 1, cv2.LINE_AA)
-        # nms_img_filename = "/Volumes/projects/NWPU-VHR-10-dataset/demo_test_res/" +\
-        #                                     str(os.path.split(file_path)[1].split('.')[0])\
-        #                                              +"-nms."+ str(os.path.split(file_path)[1].split('.')[1])
-        nms_img_filename = "/Volumes/projects/NWPU-VHR-10-dataset/demo_test_res/" + os.path.split(file_path)[1]
+        nms_img_filename = "/Volumes/projects/NWPU-VHR-10-dataset/demo_test_res/" +\
+                                            str(os.path.split(file_path)[1].split('.')[0])\
+                                                     +"-nms."+ str(os.path.split(file_path)[1].split('.')[1])
         print(nms_img_filename)
         cv2.imwrite(nms_img_filename, image_orig)
         # print(nms_img_filename)

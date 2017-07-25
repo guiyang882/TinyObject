@@ -48,7 +48,7 @@ def nms(y_pred_conf, y_pred_loc, prob):
         traffic_label_dict = json.load(handle)
         for key, val in traffic_label_dict.items():
             class_boxes[val] = list()
-    class_boxes[0] = list()
+
     # Go through all possible boxes and perform class-based greedy NMS (greedy based on class prediction confidence)
     y_idx = 0
     for fm_size in g_SSDConfig.FM_SIZES:
@@ -58,9 +58,7 @@ def nms(y_pred_conf, y_pred_loc, prob):
                 for db in g_SSDConfig.DEFAULT_BOXES:
                     # Only perform calculations if class confidence > CONF_THRESH and not background class
                     if prob[y_idx] > g_SSDConfig.CONF_THRESH and y_pred_conf[
-                         y_idx] > 0.:
-                    #if prob[y_idx] > 0.5:
-                    # if True:
+                        y_idx] > 0.:
                         # Calculate absolute coordinates of predicted bounding box
                         xc, yc = col + 0.5, row + 0.5  # center of current feature map cell
                         center_coords = np.array([xc, yc, xc, yc])
@@ -87,7 +85,6 @@ def nms(y_pred_conf, y_pred_loc, prob):
                             for other_box in class_boxes[cls]:
                                 iou = calc_iou(box[:4], other_box[:4])
                                 if iou > g_SSDConfig.NMS_IOU_THRESH:
-                                # if iou > 0.5:
                                     overlapped = True
                                     # If current box has higher confidence than other box
                                     if box[5] > other_box[5]:
