@@ -108,7 +108,7 @@ def create_Samples(index_file_path, label, save_name):
             if not os.path.exists(line):
                 continue
             image = cv2.imread(line, 0)
-            h, w = 48, 48
+            h, w = 56, 56
             if image.shape[0] != h or image.shape[1] != w:
                 image = cv2.resize(image, (h, w),
                                    interpolation=cv2.INTER_LINEAR)
@@ -169,7 +169,7 @@ def prepare_Train_Test_Sample(positive_path, negative_path, save_prefix):
         t_data = _sample_data["images"]
         t_label = _sample_data["labels"]
         res_data = []
-        h, w = 48, 48
+        h, w = 56, 56
         for idx in _sample_idx:
             t = t_data[idx].reshape(1, h*w*1).tolist()[0]
             t.append(t_label[idx])
