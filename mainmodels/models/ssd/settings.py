@@ -17,7 +17,7 @@ print(proj_dir)
 
 class SSDConfig(object):
     # Model selection and dependent parameters
-    MODEL = 'NWPUNet'  # AlexNet/VGG16/ResNet50
+    MODEL = 'JLFirst'  # AlexNet/VGG16/ResNet50
 
     # Default boxes
     # DEFAULT_BOXES = ((x1_offset, y1_offset, x2_offset, y2_offset), (...), ...)
@@ -32,6 +32,11 @@ class SSDConfig(object):
             (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
             (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
         )
+    elif MODEL == "JLFirst":
+        DEFAULT_BOXES = (
+            (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
+            (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
+        )
     else:
         pass
     NUM_DEFAULT_BOXES = len(DEFAULT_BOXES)
@@ -41,15 +46,17 @@ class SSDConfig(object):
         NUM_CLASSES = 222  # 221 signs + 1 background class
     elif MODEL == "NWPUNet":
         NUM_CLASSES = 6  # 8 signs + 1 background class
+    elif MODEL == "JLFirst":
+        NUM_CLASSES = 2  # 1 airplane + 1 background class
     else:
         raise NotImplementedError('Model not implemented')
-    NUM_CHANNELS = 1  # grayscale->1, RGB->3
+    NUM_CHANNELS = 3  # grayscale->1, RGB->3
     NUM_PRED_CONF = NUM_DEFAULT_BOXES * NUM_CLASSES  # number of class predictions per feature map cell
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
     # Bounding box parameters
     IOU_THRESH = 0.45  # match ground-truth box to default boxes exceeding this IOU threshold, during data prep
-    NMS_IOU_THRESH = 0.2 # IOU threshold for non-max suppression
+    NMS_IOU_THRESH = 0.2  # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
@@ -66,6 +73,9 @@ class SSDConfig(object):
         # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
         # FM_SIZES = [[100, 150], [50, 75], [25, 38], [13, 19]]
         FM_SIZES = [[50, 75], [25, 37], [13, 19]]
+    if MODEL == "JLFirst":
+        IMG_H, IMG_W = 256, 256
+        FM_SIZES = [[64, 64], [32, 32]]
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -101,6 +111,12 @@ class SSDConfig(object):
                                     "train", "model.ckpt"])
         LOSS_HISTORY_PATH = "/".join([proj_dir, "mainmodels", "log", "nwpu",
                                       "loss_history.pkl"])
+        TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
+        DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
+    elif MODEL == "JLFirst":
+        MODEL_SAVE_PATH = "/Volumes/projects/第三方数据下载/train_log/JLFirst" \
+                          "/model/model.ckpt"
+        LOSS_HISTORY_PATH = "/Volumes/projects/第三方数据下载/train_log/JLFirst/loss_history.pkl"
         TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
         DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
     else:

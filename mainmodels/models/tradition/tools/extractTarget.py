@@ -12,6 +12,7 @@ import os
 import pickle
 import random
 import shutil
+import codecs
 
 import cv2
 import numpy as np
@@ -102,11 +103,12 @@ def fetchTargetPosition(srcdir, savedir, subfix='lif'):
 def create_Samples(index_file_path, label, save_name):
     """该函数将对采样出来的样本进行处理，得到固定大小的图像"""
     datalist, labels = None, []
-    with open(index_file_path, 'r') as handle:
+    with codecs.open(index_file_path, 'r', "utf8") as handle:
         for line in handle.readlines():
             line = line.strip()
             if not os.path.exists(line):
                 continue
+            # print(line)
             image = cv2.imread(line, 0)
             h, w = 56, 56
             if image.shape[0] != h or image.shape[1] != w:
@@ -256,17 +258,17 @@ def prepare_rpn_list(save_train_path, save_test_path):
 
 
 if __name__ == "__main__":
-    index_file_path = "/Users/liuguiyang/Downloads/AirplaneSamples/Positive/corp/index.txt"
+    index_file_path = u"/Volumes/projects/第三方数据下载/JL1ST/index_pos.txt"
     label = 1
     save_name = "positive.pkl"
     create_Samples(index_file_path, label, save_name)
 
-    index_file_path = "/Users/liuguiyang/Downloads/AirplaneSamples/Negative/index.txt"
+    index_file_path = u"/Volumes/projects/第三方数据下载/JL1ST/index_neg.txt"
     label = 0
     save_name = "negative.pkl"
     create_Samples(index_file_path, label, save_name)
 
-    pos_path = "/Users/liuguiyang/Downloads/AirplaneSamples/Positive/corp/positive.pkl"
-    neg_path = "/Users/liuguiyang/Downloads/AirplaneSamples/Negative/negative.pkl"
-    save_prefix = "/Users/liuguiyang/Downloads/AirplaneSamples/input/"
+    pos_path = "/Volumes/projects/第三方数据下载/JL1ST/positive.pkl"
+    neg_path = "/Volumes/projects/第三方数据下载/JL1ST/negative.pkl"
+    save_prefix = "/Volumes/projects/第三方数据下载/JL1ST/"
     prepare_Train_Test_Sample(pos_path, neg_path, save_prefix)

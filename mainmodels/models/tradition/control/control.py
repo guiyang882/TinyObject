@@ -11,17 +11,20 @@ from __future__ import print_function
 import os
 import time
 import copy
+import codecs
 
 import cv2
 import numpy as np
 
-import __init
+# import __init
 
+from mainmodels.dataset.airplane_input import extract_airplane_posinfo
 from mainmodels.models.tradition.control.model_cnn_server import ModelServer
 
+
 proj_root = "/".join(os.path.abspath(__file__).split("/")[0:-5])
-images_path = "/".join(["/Volumes/projects/NWPU-VHR-10-dataset/src", "image.list"])
-res_save_dir = "/Volumes/projects/NWPU-VHR-10-dataset/cnnslide_res"
+images_path = "/".join(["/Volumes/projects/第三方数据下载/JL1ST", "images.list"])
+res_save_dir = "/Volumes/projects/第三方数据下载/train_log/res_images"
 
 # [h, w]
 # target_size_dict = {
@@ -45,7 +48,7 @@ target_size_dict = {
     "harbor": [[75, 90], [100, 110], [125, 140], [150, 145]],
     "bridge": [[30, 25], [40, 25], [50, 25], [60, 30], [70, 40],
                [45, 65], [50, 90]],
-    "total": [[45, 45], [78, 65], [98, 85], [70, 95], [90, 70]]
+    "total": [[48, 48], [56, 56]]
 }
 
 def prepare_sliding_windows(image, min_win_size, strid_size):
@@ -82,6 +85,8 @@ def prepare_sliding_windows(image, min_win_size, strid_size):
 def prepare_sliding_windows_new(image, min_win_size):
     """准备滑动窗口数据"""
     image_height, image_width = image.shape[0], image.shape[1]
+    # if image.shape[2] == 3:
+    #     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     w_height, w_width = min_win_size[0], min_win_size[1]
     s_height, s_width = w_height // 3 * 1, w_width // 3 * 1
     h_seq = [i*s_height for i in range(image_height // s_height + 1)]
@@ -100,7 +105,7 @@ def prepare_sliding_windows_new(image, min_win_size):
                 continue
             sub_image = image[h_st:h_ed, w_st:w_ed]
             anchor = [h_st, w_st, h_ed-h_st+1, w_ed-w_st+1]
-            IMG_H, IMG_W = 90, 90
+            IMG_H, IMG_W = 56, 56
             if sub_image.shape[0] != IMG_H or sub_image.shape[1] != IMG_W:
                 sub_image = cv2.resize(sub_image, (IMG_H, IMG_W),
                                        interpolation=cv2.INTER_LINEAR)
@@ -150,11 +155,33 @@ def calc_softmax_prob(predict):
         res.append(tmp)
     return np.array(res)
 
+
+def show_ground_truth(image_name, src_image):
+    anno_name = ".".join(image_name.split(".")[:-1] + ["xml"])
+    annotation_file = \
+        "/Volumes/projects/第三方数据下载/JL1ST/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_annotation/"
+    abs_anno_file = annotation_file + anno_name
+    print(abs_anno_file)
+    if not os.path.exists(abs_anno_file):
+        return src_image
+    ground_truths = extract_airplane_posinfo(abs_anno_file)
+    color = (0, 0, 255)
+    for area in ground_truths:
+        # cv2.rectangle(src_image, (area[1], area[0]),(area[3], area[2]), color, 2)
+        print(area)
+        cv2.rectangle(src_image,
+                      (area[2], area[3]), (area[0], area[1]), color, 2)
+        src_image = cv2.putText(src_image, "airplane",
+                            (area[2], area[3]), 0,
+                            0.5, color, 1, cv2.LINE_AA)
+    return src_image
+
+
 def after_predict(image_name, min_win_size, src_image, anchorlist, predict,
                   color=(255, 0, 0), is_show=False):
     """经过分类模型处理过之后的数据，得到指定区域的概率值，开始绘制热力图"""
     image = copy.deepcopy(src_image)
-    image_height, image_width = image.shape[0], image.shape[1]
+    image_height, image_width = image.shape[:2]
     print(type(predict), predict.shape)
     predict = calc_softmax_prob(predict)
     print(predict)
@@ -171,7 +198,8 @@ def after_predict(image_name, min_win_size, src_image, anchorlist, predict,
                                     (area[1], area[0]), 0,
                                     0.5, (0, 255, 0), 1, cv2.LINE_AA)
         else:
-            b1_flag = class_idx[idx] in [1, 2, 3] and predict[idx][class_idx[idx]] >=0.92
+            b1_flag = class_idx[idx] in [1, 2, 3] and predict[idx][class_idx[
+                idx]] >= 0.00
             b2_flag = class_idx[idx] in [4, 5] and predict[idx][class_idx[idx]] >= 0.9
 
             if b1_flag or b2_flag:
@@ -181,6 +209,7 @@ def after_predict(image_name, min_win_size, src_image, anchorlist, predict,
                 image = cv2.putText(image, str(class_idx[idx]),
                                 (area[1], area[0]), 0,
                                 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+    image = show_ground_truth(image_name, image)
     if is_show:
         cv2.imshow("e", image)
         cv2.waitKey()
@@ -196,7 +225,7 @@ if __name__ == "__main__":
     model_server = ModelServer(use_model_flag=0)
     model_server.load_model()
 
-    with open(images_path, 'r') as handle:
+    with codecs.open(images_path, 'r', "utf8") as handle:
         for line in handle.readlines():
             image_path = line.strip()
             image_name = image_path.split("/")[-1]
@@ -211,8 +240,10 @@ if __name__ == "__main__":
 
             # 对输入图像进行分类器的识别, 输入原始图像
             small_imgs = [image]
-            min_win_size = (48, 48)
             for sub_img in small_imgs:
+                preds = []
+                anchor_lists = []
+                min_win_size = (56, 56)
                 for min_win_size in target_size_dict["total"]:
                     candidate_windows, anchorlist = \
                         prepare_sliding_windows_new(sub_img, min_win_size)
@@ -222,7 +253,13 @@ if __name__ == "__main__":
                     predict = model_server.predict(candidate_windows)
                     ed = time.time()
                     print("spend %s s" % str(ed - st))
-                    after_predict(image_name, min_win_size,
-                                  sub_img, anchorlist, predict, is_show=False)
+                    preds.append(predict)
+                    anchor_lists.extend(anchorlist)
+
+                # get rgb src image and label the target into the image
+                predict = np.concatenate((preds[0], preds[1]), axis=0)
+                rgb_image = cv2.imread(image_path)
+                after_predict(image_name, min_win_size,
+                              rgb_image, anchor_lists, predict, is_show=False)
                 # break
-            break
+            # break

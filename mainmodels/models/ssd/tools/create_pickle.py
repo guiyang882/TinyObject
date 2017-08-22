@@ -256,6 +256,7 @@ def prepare_raw_data_with_resized_NWPU(tt100k_annotation_path):
     with open(raw_save_path, 'wb') as f:
         pkl.dump(data_raw, f)
 
+
 if __name__ == '__main__':
     # prepare_train_raw_data()
     # prepare_test_raw_data()

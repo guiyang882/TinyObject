@@ -8,7 +8,7 @@ from datetime import datetime
 
 import tensorflow as tf
 
-import __init
+# import __init
 from mainmodels.models.tradition.cnn import model
 from mainmodels.models.tradition.config import g_CNNConfig
 
