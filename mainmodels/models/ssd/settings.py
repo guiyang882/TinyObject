@@ -98,7 +98,7 @@ class SSDConfig(object):
     MOVING_AVERAGE_DECAY = 0.9999
 
     # Training process
-    RESUME = True  # resume training from previously saved model?
+    RESUME = False  # resume training from previously saved model?
     NUM_EPOCH = 5000
     BATCH_SIZE = 16  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
@@ -119,42 +119,22 @@ class SSDConfig(object):
         TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
         DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
     elif MODEL == "JLFirst":
-        MODEL_SAVE_PATH = "/Volumes/projects/第三方数据下载/train_log/JLFirst" \
-                          "/model/model.ckpt"
-        LOSS_HISTORY_PATH = "/Volumes/projects/第三方数据下载/train_log/JLFirst/loss_history.pkl"
+        DATASET_BASE_DIR = "/home/ai-i-liuguiyang/repos_ssd/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD"
+        MODEL_SAVE_PATH = DATASET_BASE_DIR + "/model/model.ckpt"
+        LOSS_HISTORY_PATH = DATASET_BASE_DIR + "/loss_history.pkl"
         TENSORBOARD_SAVE_PATH = MODEL_SAVE_PATH
-        DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
     else:
         raise NotImplementedError('Model not implemented')
 
-    PRETRAIN_MODEL_PATH = "/".join(
-        [DATASET_BASE_DIR, "pretrain_model", "model.ckpt-740"])
-
-    TRAIN_DATA_RAW_PATH = "/".join(
-        [DATASET_BASE_DIR, "train_data_raw.pkl"])
-    TEST_DATA_RAW_PATH = "/".join(
-        [DATASET_BASE_DIR, "test_data_raw.pkl"])
+    PRETRAIN_MODEL_PATH = ""
     TRAIN_DATA_PRE_PATH = "/".join(
         [DATASET_BASE_DIR, "ssd_prepare", "train_data_prep.pkl"])
     TEST_DATA_PRE_PATH = "/".join(
         [DATASET_BASE_DIR, "ssd_prepare", "test_data_prep.pkl"])
 
-    TRAIN_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "train"])
-    TEST_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "test"])
-
-    RESIZED_IMAGES_DIR = "/".join([DATASET_BASE_DIR, "resized_images"])
-
-    tt100k_traffic_sign_path = "/".join(
-        [DATASET_BASE_DIR, "allLabel.json"])
-        #[DATASET_BASE_DIR, "TT100K_traffic_sign.json"])
-    tt100k_train_annotation_path = "/".join(
-        [DATASET_BASE_DIR, "train_annotation.json"])
-    tt100k_test_annotation_path = "/".join(
-        [DATASET_BASE_DIR, "test_annotation.json"])
-
-    nwpu_train_annotation_path = "/".join(
-        [DATASET_BASE_DIR, "train_annotation.pkl"])
-    nwpu_sign_path = "/".join(
-        [DATASET_BASE_DIR, "allLabel.json"])
+    TRAIN_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "ssd_src"])
+    TEST_DATA_SRC_DIR = TRAIN_DATA_SRC_DIR
+    RESIZED_IMAGES_DIR = TRAIN_DATA_SRC_DIR
+    label_sign_path = "/".join([DATASET_BASE_DIR, "target.json"])
 
 g_SSDConfig = SSDConfig()

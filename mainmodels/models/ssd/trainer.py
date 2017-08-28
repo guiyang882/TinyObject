@@ -49,8 +49,7 @@ def next_batch(X, y_conf, y_loc, batch_size):
         images = []
         for image_file in image_files:
             image_abs_file = "/".join(
-                [g_SSDConfig.DATASET_BASE_DIR, image_file])
-            image_abs_file = image_file
+                [g_SSDConfig.RESIZED_IMAGES_DIR, image_file])
             image = Image.open(image_abs_file)
             image = np.asarray(image)
             images.append(image)
@@ -191,40 +190,44 @@ def run_training():
             train_loss = np.mean(losses)
             print("train_loss is: %f" % train_loss)
 
-            # Calculate validation loss at the end of the epoch
-            valid_gen = next_batch(X_valid, y_valid_conf, y_valid_loc,
-                                   g_SSDConfig.BATCH_SIZE)
-            num_batches_valid = math.ceil(X_valid.shape[0] /
-                                          g_SSDConfig.BATCH_SIZE)
-            losses = []
-            for _ in range(num_batches_valid):
-                images, y_true_conf_gen, y_true_loc_gen, conf_loss_mask_gen = next(
-                    valid_gen)
+            if epoch > 0 and epoch % 100 == 0:
+                # Calculate validation loss at the end of the epoch
+                valid_gen = next_batch(X_valid, y_valid_conf, y_valid_loc,
+                                       g_SSDConfig.BATCH_SIZE)
+                num_batches_valid = math.ceil(X_valid.shape[0] /
+                                              g_SSDConfig.BATCH_SIZE)
+                losses = []
+                for _ in range(num_batches_valid):
+                    images, y_true_conf_gen, y_true_loc_gen, conf_loss_mask_gen = next(
+                        valid_gen)
 
-                # Perform forward pass and calculate loss
-                loss = sess.run(reported_loss, feed_dict={
-                    x: images,
-                    y_true_conf: y_true_conf_gen,
-                    y_true_loc: y_true_loc_gen,
-                    conf_loss_mask: conf_loss_mask_gen,
-                    is_training: False
-                })
-                losses.append(loss)
-            valid_loss = np.mean(losses)
-            print("valid_loss is: %f" % valid_loss)
+                    # Perform forward pass and calculate loss
+                    loss = sess.run(reported_loss, feed_dict={
+                        x: images,
+                        y_true_conf: y_true_conf_gen,
+                        y_true_loc: y_true_loc_gen,
+                        conf_loss_mask: conf_loss_mask_gen,
+                        is_training: False
+                    })
+                    losses.append(loss)
+                valid_loss = np.mean(losses)
+                print("valid_loss is: %f" % valid_loss)
 
-            # Record and report train/validation/test losses for this epoch
-            loss_history.append((train_loss, valid_loss))
+                # Record and report train/validation/test losses for this epoch
+                loss_history.append((train_loss, valid_loss))
 
-            # Print accuracy every epoch
-            print(
-                'Epoch %d -- Train loss: %.4f, Validation loss: %.4f, Elapsed time: %.2f sec' % \
-                (epoch + 1, train_loss, valid_loss, time.time() - last_time))
-            last_time = time.time()
+                # Print accuracy every epoch
+                print('Epoch %d -- Train loss: %.4f, '
+                      'Validation loss: %.4f, '
+                      'Elapsed time: %.2f sec' % (
+                    epoch + 1, train_loss, valid_loss, time.time() - last_time))
+                last_time = time.time()
 
-            if g_SSDConfig.SAVE_MODEL and epoch % 5 == 0:
+            if g_SSDConfig.SAVE_MODEL and epoch % 100 == 0 and epoch:
                 # Save model to disk
-                save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH, global_step=epoch)
+                if not os.path.isdir(g_SSDConfig.MODEL_SAVE_PATH):
+                    os.makedirs(g_SSDConfig.MODEL_SAVE_PATH)
+                save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
                 print('Trained model saved at: %s' % save_path)
 
                 # Also save accuracy history
@@ -241,33 +244,4 @@ def run_training():
 
 
 if __name__ == '__main__':
-    # if g_SSDConfig.MODEL == "AlexNet":
-    #     base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
-    #            "/raw_prep/prep_data"
-    # elif g_SSDConfig.MODEL == "NWPUNet":
-    #     base_dir = "/Volumes/projects/NWPU-VHR-10-dataset/raw_prep/prep_data"
-    # else:
-    #     raise NotImplementedError('Model not implemented')
-
-    # prep_train = dict()
-    # prep_test = dict()
-    # for file_path in os.listdir(base_dir):
-    #     if "train" in file_path:
-    #         with open(base_dir+"/"+file_path, "rb") as handle:
-    #             part_train = pickle.load(handle)
-    #             for key, val in part_train.items():
-    #                 prep_train[key] = val
-    #                 # print(type(val))
-    #     if "test" in file_path:
-    #         with open(base_dir+"/"+file_path, "rb") as handle:
-    #             part_test = pickle.load(handle)
-    #             for key, val in part_test.items():
-    #                 prep_test[key] = val
-    # print(prep_train.keys())
-    # with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, 'wb') as save_handle:
-    #     pickle.dump(prep_train, save_handle)
-    # print(prep_test.keys())
-    # with open(g_SSDConfig.TEST_DATA_PRE_PATH, "wb") as handle:
-    #     pickle.dump(prep_test, handle)
-
     run_training()
