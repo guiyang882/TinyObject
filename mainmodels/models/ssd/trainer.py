@@ -161,7 +161,7 @@ def run_training():
         train_start_time = time.time()
 
         # Run NUM_EPOCH epochs of training
-        for epoch in range(g_SSDConfig.NUM_EPOCH):
+        for epoch in range(g_SSDConfig.NUM_EPOCH+1):
             train_gen = next_batch(X_train, y_train_conf, y_train_loc,
                                    g_SSDConfig.BATCH_SIZE)
             num_batches_train = math.ceil(X_train.shape[0] /
@@ -223,7 +223,7 @@ def run_training():
                     epoch + 1, train_loss, valid_loss, time.time() - last_time))
                 last_time = time.time()
 
-            if g_SSDConfig.SAVE_MODEL and epoch % 100 == 0 and epoch:
+            if g_SSDConfig.SAVE_MODEL and epoch % 10 == 0 and epoch:
                 # Save model to disk
                 if not os.path.isdir(g_SSDConfig.MODEL_SAVE_PATH):
                     os.makedirs(g_SSDConfig.MODEL_SAVE_PATH)
