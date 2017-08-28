@@ -105,8 +105,6 @@ def run_training():
     # Load training and test data
     with open(g_SSDConfig.TRAIN_DATA_PRE_PATH, mode='rb') as f:
         train = pickle.load(f)
-    # with open('test.p', mode='rb') as f:
-    #	test = pickle.load(f)
 
     # Format the data
     X_train = []
@@ -238,20 +236,18 @@ def run_training():
         print('Total elapsed time: %d min %d sec' % (
             total_time / 60, total_time % 60))
 
-
-
     # Return final test accuracy and accuracy_history
     return loss_history
 
 
 if __name__ == '__main__':
-    if g_SSDConfig.MODEL == "AlexNet":
-        base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
-               "/raw_prep/prep_data"
-    elif g_SSDConfig.MODEL == "NWPUNet":
-        base_dir = "/Volumes/projects/NWPU-VHR-10-dataset/raw_prep/prep_data"
-    else:
-        raise NotImplementedError('Model not implemented')
+    # if g_SSDConfig.MODEL == "AlexNet":
+    #     base_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData" \
+    #            "/raw_prep/prep_data"
+    # elif g_SSDConfig.MODEL == "NWPUNet":
+    #     base_dir = "/Volumes/projects/NWPU-VHR-10-dataset/raw_prep/prep_data"
+    # else:
+    #     raise NotImplementedError('Model not implemented')
 
     # prep_train = dict()
     # prep_test = dict()

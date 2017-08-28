@@ -34,8 +34,12 @@ class SSDConfig(object):
         )
     elif MODEL == "JLFirst":
         DEFAULT_BOXES = (
-            (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
-            (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
+            (-0.5, -0.5, 0.5, 0.5), (-0.3, -0.3, 0.3, 0.3),
+            (0.5, 0.5, -0.5, -0.5), (0.3, 0.3, -0.3, -0.3),
+            (-0.6, -0.3, 0.6, 0.3), (-0.3, -0.6, 0.3, 0.6),
+            (-0.7, -0.2, 0.7, 0.2), (-0.2, -0.7, 0.2, 0.7),
+            (0.6, 0.3, -0.6, -0.3), (0.3, 0.6, -0.3, -0.6),
+            (0.7, 0.2, -0.7, -0.2), (0.2, 0.7, -0.2, -0.7)
         )
     else:
         pass
@@ -55,7 +59,8 @@ class SSDConfig(object):
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
     # Bounding box parameters
-    IOU_THRESH = 0.45  # match ground-truth box to default boxes exceeding this IOU threshold, during data prep
+    IOU_THRESH = 0.4  # match ground-truth box to default boxes exceeding
+    # this IOU threshold, during data prep
     NMS_IOU_THRESH = 0.2  # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
@@ -74,8 +79,8 @@ class SSDConfig(object):
         # FM_SIZES = [[100, 150], [50, 75], [25, 38], [13, 19]]
         FM_SIZES = [[50, 75], [25, 37], [13, 19]]
     if MODEL == "JLFirst":
-        IMG_H, IMG_W = 256, 256
-        FM_SIZES = [[64, 64], [32, 32]]
+        IMG_H, IMG_W = 512, 512
+        FM_SIZES = [[32, 32], [16, 16]]
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -93,7 +98,7 @@ class SSDConfig(object):
     MOVING_AVERAGE_DECAY = 0.9999
 
     # Training process
-    RESUME = True # resume training from previously saved model?
+    RESUME = True  # resume training from previously saved model?
     NUM_EPOCH = 5000
     BATCH_SIZE = 16  # batch size for training (relatively small)
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
@@ -130,9 +135,9 @@ class SSDConfig(object):
     TEST_DATA_RAW_PATH = "/".join(
         [DATASET_BASE_DIR, "test_data_raw.pkl"])
     TRAIN_DATA_PRE_PATH = "/".join(
-        [DATASET_BASE_DIR, "raw_prep", "train_data_prep.pkl"])
+        [DATASET_BASE_DIR, "ssd_prepare", "train_data_prep.pkl"])
     TEST_DATA_PRE_PATH = "/".join(
-        [DATASET_BASE_DIR, "raw_prep", "test_data_prep.pkl"])
+        [DATASET_BASE_DIR, "ssd_prepare", "test_data_prep.pkl"])
 
     TRAIN_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "train"])
     TEST_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "test"])

@@ -30,21 +30,26 @@ def JLFirstNet():
                         normalizer_params={'is_training': True},
                         weights_regularizer=slim.l2_regularizer(
                             scale=g_SSDConfig.REG_SCALE)):
-        net = slim.conv2d(x, 64, [5, 5], 1, padding='SAME', scope='conv1_1')
-        # net = slim.conv2d(net, 64, [3, 3], 1, padding='SAME', scope='conv1_2')
+        net = slim.conv2d(x, 64, [5, 5], 1, padding='SAME', scope='conv1')
         net = slim.max_pool2d(net, [2, 2], 2, scope='pool1')
 
-        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv2_1')
+        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv2')
         net = slim.max_pool2d(net, [2, 2], 2, scope='pool2')
-        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv2_2')
 
-        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv2_2')
+        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv3')
+        net = slim.max_pool2d(net, [2, 2], 2, scope='pool3')
+
+        net = slim.conv2d(net, 128, [3, 3], scope='conv4')
+        net = slim.max_pool2d(net, [2, 2], 2, scope='pool4')
+
+        net = slim.conv2d(net, 128, [3, 3], scope='conv5')
+        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv5')
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
 
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool2')
-        net = slim.conv2d(net, 128, [3, 3], scope='conv3')
-        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv3')
+        net = slim.max_pool2d(net, [2, 2], 2, scope='pool5')
+        net = slim.conv2d(net, 128, [3, 3], scope='conv6')
+        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv6')
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
 

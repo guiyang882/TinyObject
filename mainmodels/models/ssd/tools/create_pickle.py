@@ -185,6 +185,7 @@ def prepare_raw_data_with_resized(tt100k_annotation_path):
     with open(raw_save_path, 'wb') as f:
         pkl.dump(data_raw, f)
 
+
 def prepare_raw_data_with_resized_NWPU(tt100k_annotation_path):
     # Create raw data pickle file
     filter_label_list = [10, 7]
