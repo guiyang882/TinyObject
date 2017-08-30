@@ -26,6 +26,28 @@ NUM_DEFAULT_BOXES = g_SSDConfig.NUM_DEFAULT_BOXES
 IOU_THRESH = g_SSDConfig.IOU_THRESH
 
 
+def is_inner(box_a, box_b):
+    b1 = box_a[0] >= box_b[0] and box_a[1] >= box_b[1]
+    b2 = box_a[2] <= box_b[2] and box_a[3] <= box_b[3]
+    if b1 and b2:
+        return True
+
+    b1 = box_b[0] >= box_a[0] and box_b[1] >= box_a[1]
+    b2 = box_b[2] <= box_a[2] and box_b[3] <= box_a[3]
+    if b1 and b2:
+        return True
+    return False
+
+def is_overlap(box_a, box_b):
+    x0 = max(box_a[0], box_b[0])
+    y0 = max(box_a[1], box_b[1])
+    x1 = min(box_a[2], box_b[2])
+    y1 = min(box_a[3], box_b[3])
+    if y1 <= y0 or x1 <= x0:
+        return False
+    return True
+
+
 def calc_iou(box_a, box_b):
     """
 	Calculate the Intersection Over Union of two boxes
@@ -36,6 +58,12 @@ def calc_iou(box_a, box_b):
 	"""
     # Calculate intersection, i.e. area of overlap between the 2 boxes (could be 0)
     # http://math.stackexchange.com/a/99576
+    if is_inner(box_a, box_b):
+        return 0
+
+    if not is_overlap(box_a, box_b):
+        return 0
+
     x_overlap = max(0, min(box_a[2], box_b[2]) - max(box_a[0], box_b[0]))
     y_overlap = max(0, min(box_a[3], box_b[3]) - max(box_a[1], box_b[1]))
     intersection = x_overlap * y_overlap

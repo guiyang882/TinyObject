@@ -177,15 +177,6 @@ def generate_output(input_files, options):
 
 
 if __name__ == '__main__':
-    if g_SSDConfig.MODEL == "AlexNet":
-        proj_dir = "/Volumes/projects/TrafficSign/Tencent-Tsinghua/StandardData"
-        sign_file_path = g_SSDConfig.tt100k_traffic_sign_path
-    elif g_SSDConfig.MODEL == "NWPUNet":
-        proj_dir = "/Volumes/projects/NWPU-VHR-10-dataset"
-        sign_file_path = g_SSDConfig.nwpu_sign_path
-    else:
-        pass
-
     class RunOption(object):
         input_dir = "input_dir"
         mode = "image"

@@ -225,8 +225,10 @@ def run_training():
 
             if g_SSDConfig.SAVE_MODEL and epoch % 10 == 0 and epoch:
                 # Save model to disk
-                if not os.path.isdir(g_SSDConfig.MODEL_SAVE_PATH):
-                    os.makedirs(g_SSDConfig.MODEL_SAVE_PATH)
+                model_dir = "/".join(g_SSDConfig.MODEL_SAVE_PATH.split("/")[
+                                     :-1])
+                if not os.path.isdir(model_dir):
+                    os.makedirs(model_dir)
                 save_path = saver.save(sess, g_SSDConfig.MODEL_SAVE_PATH)
                 print('Trained model saved at: %s' % save_path)
 

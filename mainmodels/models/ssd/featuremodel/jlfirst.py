@@ -53,6 +53,12 @@ def JLFirstNet():
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
 
+        net = slim.max_pool2d(net, [2, 2], 2, scope='pool6')
+        net = slim.conv2d(net, 128, [3, 3], scope='conv7')
+        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv7')
+        preds_conf.append(net_conf)
+        preds_loc.append(net_loc)
+
     # Concatenate all preds together into 1 vector, for both classification and localization predictions
     final_pred_conf = tf.concat(preds_conf, 1)
     final_pred_loc = tf.concat(preds_loc, 1)
