@@ -16,10 +16,8 @@ import numpy as np
 import tensorflow as tf
 import cv2
 from PIL import Image
-import matplotlib.pyplot as plt
-#from svm_class import classify
 
-import __init
+# import __init
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.ssdmodel import SSDModel
@@ -27,18 +25,6 @@ from mainmodels.models.ssd.tools.NMS import nms
 
 
 def run_inference(image, model, sess, sign_map):
-    """
-	Run inference on a given image
-
-	Arguments:
-		* image: Numpy array representing a single RGB image
-		* model: Dict of tensor references returned by SSDModel()
-		* sess: TensorFlow session reference
-
-	Returns:
-		* Numpy array representing annotated image
-	"""
-    # Save original image in memory
     image = np.array(image)
     image_orig = np.copy(image)
 
@@ -49,19 +35,16 @@ def run_inference(image, model, sess, sign_map):
     preds_loc = model['preds_loc']
     probs = model['probs']
 
-    # Convert image to PIL Image, resize it, convert to grayscale (if necessary), convert back to numpy array
     image = Image.fromarray(image)
     orig_w, orig_h = image.size
     if g_SSDConfig.NUM_CHANNELS == 1:
-        image = image.convert('L')  # 8-bit grayscale
-    image = image.resize((g_SSDConfig.IMG_W, g_SSDConfig.IMG_H),
-                         Image.LANCZOS)  # high-quality downsampling filter
+        image = image.convert('L')
+    image = image.resize((g_SSDConfig.IMG_W, g_SSDConfig.IMG_H), Image.LANCZOS)
     image = np.asarray(image)
 
     images = np.array([image])  # create a "batch" of 1 image
     if g_SSDConfig.NUM_CHANNELS == 1:
-        images = np.expand_dims(images,
-                                axis=-1)  # need extra dimension of size 1 for grayscale
+        images = np.expand_dims(images, axis=-1)
 
     # Perform object detection
     t0 = time.time()  # keep track of duration of object detection + NMS
@@ -71,9 +54,6 @@ def run_inference(image, model, sess, sign_map):
     print('Inference took %.1f ms (%.2f fps)' % (
         (time.time() - t0) * 1000, 1 / (time.time() - t0)))
 
-    print("preds_conf_val", preds_conf_val)
-    print("preds_loc_val", preds_loc_val)
-    print("probs_val", probs_val)
     # Gather class predictions and confidence values
     y_pred_conf = preds_conf_val[0]  # batch size of 1, so just take [0]
     y_pred_conf = y_pred_conf.astype('float32')
@@ -98,10 +78,10 @@ def run_inference(image, model, sess, sign_map):
     if len(boxes) > 0:
         boxes[:, :4] = boxes[:, :4] * scale
 
-    print("boxes: ", boxes)
+    # print("boxes: ", boxes)
     # Draw and annotate boxes over original image, and return annotated image
     image = image_orig
-    for box in boxes:
+    for box in boxes[:20]:
         # Get box parameters
         box_coords = [int(round(x)) for x in box[:4]]
         cls = int(box[4])
@@ -121,7 +101,6 @@ def generate_output(input_files, options):
     """
 	Generate annotated images, videos, or sample images, based on mode
 	"""
-    print(options.sign_file_path)
     if not os.path.exists(options.sign_file_path):
         raise IOError(options.sign_file_path + " not found !")
     # First, load mapping from integer class ID to sign name string
@@ -130,14 +109,11 @@ def generate_output(input_files, options):
         r_sign_map = json.load(handle)
         for key, val in r_sign_map.items():
             sign_map[val] = key
-    sign_map[0] = 'background'  # class ID 0 reserved for background class
+    sign_map[0] = 'bg'  # class ID 0 reserved for background class
 
     # Create output directory 'inference_out/' if needed
     if not os.path.isdir(options.inference_out):
-        try:
             os.mkdir(options.inference_out)
-        except FileExistsError:
-            raise IOError('Error: Cannot mkdir ./inference_out')
 
     # Launch the graph
     with tf.Graph().as_default(), tf.Session() as sess:
@@ -159,7 +135,6 @@ def generate_output(input_files, options):
                 head, tail = os.path.split(image_file)
                 cv2.imwrite('%s/%s' % (options.inference_out, tail), image)
             print('Output saved in %s' % options.inference_out)
-
         elif options.mode == 'demo':
             print('Demo mode: Running inference on images in sample_images/')
             image_files = os.listdir(options.sample_images_dir)
@@ -172,17 +147,17 @@ def generate_output(input_files, options):
                 image = run_inference(image_orig, model, sess, sign_map)
                 cv2.imshow("res", image)
                 cv2.waitKey()
-                # plt.imshow(image)
-                # plt.show()
 
 
 if __name__ == '__main__':
     class RunOption(object):
+        proj_dir = "/Volumes/projects/第三方数据下载/JL1ST" \
+                   "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD"
         input_dir = "input_dir"
         mode = "image"
-        sign_file_path = sign_file_path
-        inference_out = "/".join([proj_dir, "demo_test_res"])
-        sample_images_dir = "/".join([proj_dir, "demo_test"])
+        sign_file_path = proj_dir + "/target.label.json"
+        inference_out = "/".join([proj_dir, "test", "output"])
+        sample_images_dir = "/".join([proj_dir, "test", "src"])
 
     options = RunOption()
     if options.mode not in ["image", "demo"]:
@@ -192,6 +167,8 @@ if __name__ == '__main__':
 
     input_files = []
     for item in demo_lists:
+        if item.startswith("._"):
+            continue
         if item.endswith("png") or item.endswith("jpg"):
             input_files.append(options.sample_images_dir+"/"+item)
     generate_output(input_files, options)

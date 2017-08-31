@@ -68,11 +68,12 @@ def ModelHelper(y_pred_conf, y_pred_loc):
                                     name='conf_loss_mask')  # 1 mask "bit" per def. box
 
     # Confidence loss
-    logits = tf.reshape(y_pred_conf, [-1, num_total_preds,
-                                      g_SSDConfig.NUM_CLASSES])
-    conf_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,
-                                                               labels=y_true_conf)
-    conf_loss = conf_loss_mask * conf_loss  # "zero-out" the loss for don't-care negatives
+    logits = tf.reshape(y_pred_conf,
+                        [-1, num_total_preds, g_SSDConfig.NUM_CLASSES])
+    conf_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+        logits=logits, labels=y_true_conf)
+    # "zero-out" the loss for don't-care negatives
+    conf_loss = conf_loss_mask * conf_loss
     conf_loss = tf.reduce_sum(conf_loss)
 
     # Localization loss (smooth L1 loss)
@@ -84,14 +85,14 @@ def ModelHelper(y_pred_conf, y_pred_loc):
     smooth_l1_condition = tf.less(tf.abs(diff), 1.0)
     # loc_loss = tf.select(smooth_l1_condition, loc_loss_l2, loc_loss_l1)
     loc_loss = tf.where(smooth_l1_condition, loc_loss_l2, loc_loss_l1)
-
-    loc_loss_mask = tf.minimum(y_true_conf,
-                               1)  # have non-zero localization loss only where we have matching ground-truth box
+    # have non-zero localization loss only where we have matching
+    # ground-truth box
+    loc_loss_mask = tf.minimum(y_true_conf, 1)
     loc_loss_mask = tf.to_float(loc_loss_mask)
-    loc_loss_mask = tf.stack([loc_loss_mask] * 4,
-                             axis=2)  # [0, 1, 1] -> [[[0, 0, 0, 0], [1, 1, 1, 1], [1, 1, 1, 1]], ...]
-    loc_loss_mask = tf.reshape(loc_loss_mask, [-1,
-                                               num_total_preds_loc])  # removing the inner-most dimension of above
+    # [0, 1, 1] -> [[[0, 0, 0, 0], [1, 1, 1, 1], [1, 1, 1, 1]], ...]
+    loc_loss_mask = tf.stack([loc_loss_mask] * 4, axis=2)
+    # removing the inner-most dimension of above
+    loc_loss_mask = tf.reshape(loc_loss_mask, [-1, num_total_preds_loc])
     loc_loss = loc_loss_mask * loc_loss
     loc_loss = tf.reduce_sum(loc_loss)
 
@@ -106,8 +107,8 @@ def ModelHelper(y_pred_conf, y_pred_loc):
 
     # Class probabilities and predictions
     probs_all = tf.nn.softmax(logits)
-    probs, preds_conf = tf.nn.top_k(
-        probs_all)  # take top-1 probability, and the index is the predicted class
+    # take top-1 probability, and the index is the predicted class
+    probs, preds_conf = tf.nn.top_k(probs_all)
     probs = tf.reshape(probs, [-1, num_total_preds])
     preds_conf = tf.reshape(preds_conf, [-1, num_total_preds])
 

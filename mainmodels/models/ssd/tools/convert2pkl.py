@@ -231,5 +231,23 @@ def analysis_ssd_sample_no_label():
             break
 
 
+# 将不同批次的ssd样本的结果进行整合
+def combine_ssd_samples(datatype="train"):
+    dir_path = "/home/ai-i-liuguiyang/repos_ssd/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD/ssd_prepare"
+    file_list = ["ssd_sample_prepare_%d.pkl" % i for i in range(0, 3)]
+    res = dict()
+    for item in file_list:
+        abs_file_path = dir_path + "/" + item
+        with open(abs_file_path, "rb") as handler:
+            tmp = pkl.load(handler)
+            res.update(tmp)
+    if datatype == "train":
+        fname = "train_data_prep.pkl"
+    else:
+        fname = "test_data_prep.pkl"
+    with open(dir_path + "/" + fname, "wb") as handler:
+        pkl.dumps(res, handler)
+
+
 if __name__ == "__main__":
-    build_ssd_samples()
+    combine_ssd_samples()

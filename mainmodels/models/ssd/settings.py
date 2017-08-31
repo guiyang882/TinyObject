@@ -90,13 +90,13 @@ class SSDConfig(object):
     # Bounding box parameters
     IOU_THRESH = 0.50  # match ground-truth box to default boxes exceeding
     # this IOU threshold, during data prep
-    NMS_IOU_THRESH = 0.2  # IOU threshold for non-max suppression
+    NMS_IOU_THRESH = 0.40  # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
 
     # Class confidence threshold to count as detection
-    CONF_THRESH = 0.62
+    CONF_THRESH = 0.80
 
     if MODEL == 'AlexNet':
         IMG_H, IMG_W = 260, 400
@@ -129,7 +129,9 @@ class SSDConfig(object):
     # Training process
     RESUME = False  # resume training from previously saved model?
     NUM_EPOCH = 5000
-    BATCH_SIZE = 16  # batch size for training (relatively small)
+    BATCH_SIZE = 32  # batch size for training (relatively small)
+    MODEL_SAVE_FREQ = 10  # 每隔多少隔epoch进行模型的存储
+    VALID_FREQ = 50  # 每个多少个epoch进行验证的集的测试
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
     SAVE_MODEL = True  # save trained model to disk?
 
@@ -155,7 +157,8 @@ class SSDConfig(object):
     else:
         raise NotImplementedError('Model not implemented')
 
-    PRETRAIN_MODEL_PATH = ""
+    PRETRAIN_MODEL_PATH = \
+        "/Volumes/projects/第三方数据下载/JL1ST/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD/model/model.ckpt"
     TRAIN_DATA_PRE_PATH = "/".join(
         [DATASET_BASE_DIR, "ssd_prepare", "train_data_prep.pkl"])
     TEST_DATA_PRE_PATH = "/".join(
@@ -164,6 +167,7 @@ class SSDConfig(object):
     TRAIN_DATA_SRC_DIR = "/".join([DATASET_BASE_DIR, "ssd_src"])
     TEST_DATA_SRC_DIR = TRAIN_DATA_SRC_DIR
     RESIZED_IMAGES_DIR = TRAIN_DATA_SRC_DIR
-    label_sign_path = "/".join([DATASET_BASE_DIR, "target.json"])
+    label_sign_path = "/".join(
+        ["/Volumes/projects/第三方数据下载/JL1ST/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD", "target.label.json"])
 
 g_SSDConfig = SSDConfig()

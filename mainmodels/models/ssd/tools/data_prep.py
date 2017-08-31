@@ -58,8 +58,8 @@ def calc_iou(box_a, box_b):
 	"""
     # Calculate intersection, i.e. area of overlap between the 2 boxes (could be 0)
     # http://math.stackexchange.com/a/99576
-    if is_inner(box_a, box_b):
-        return 0
+    # if is_inner(box_a, box_b):
+    #     return 0
 
     if not is_overlap(box_a, box_b):
         return 0

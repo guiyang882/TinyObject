@@ -42,8 +42,8 @@ def next_batch(X, y_conf, y_loc, batch_size):
     start_idx = 0
     while True:
         image_files = X[start_idx: start_idx + batch_size]
-        y_true_conf = np.array(y_conf[start_idx: start_idx + batch_size])
-        y_true_loc = np.array(y_loc[start_idx: start_idx + batch_size])
+        y_true_conf = np.asarray(y_conf[start_idx: start_idx + batch_size])
+        y_true_loc = np.asarray(y_loc[start_idx: start_idx + batch_size])
 
         # Read images from image_files
         images = []
@@ -190,7 +190,7 @@ def run_training():
             train_loss = np.mean(losses)
             print("train_loss is: %f" % train_loss)
 
-            if epoch > 0 and epoch % 100 == 0:
+            if epoch and epoch % g_SSDConfig.VALID_FREQ == 0:
                 # Calculate validation loss at the end of the epoch
                 valid_gen = next_batch(X_valid, y_valid_conf, y_valid_loc,
                                        g_SSDConfig.BATCH_SIZE)
@@ -223,7 +223,7 @@ def run_training():
                     epoch + 1, train_loss, valid_loss, time.time() - last_time))
                 last_time = time.time()
 
-            if g_SSDConfig.SAVE_MODEL and epoch % 10 == 0 and epoch:
+            if g_SSDConfig.SAVE_MODEL and epoch % g_SSDConfig.MODEL_SAVE_FREQ == 0 and epoch:
                 # Save model to disk
                 model_dir = "/".join(g_SSDConfig.MODEL_SAVE_PATH.split("/")[
                                      :-1])
