@@ -88,7 +88,7 @@ class SSDConfig(object):
     NUM_PRED_LOC = NUM_DEFAULT_BOXES * 4  # number of localization regression predictions per feature map cell
 
     # Bounding box parameters
-    IOU_THRESH = 0.50  # match ground-truth box to default boxes exceeding
+    IOU_THRESH = 0.30  # match ground-truth box to default boxes exceeding
     # this IOU threshold, during data prep
     NMS_IOU_THRESH = 0.40  # IOU threshold for non-max suppression
 
@@ -96,7 +96,7 @@ class SSDConfig(object):
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
 
     # Class confidence threshold to count as detection
-    CONF_THRESH = 0.80
+    CONF_THRESH = 0.50
 
     if MODEL == 'AlexNet':
         IMG_H, IMG_W = 260, 400

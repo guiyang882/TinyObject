@@ -250,4 +250,4 @@ def combine_ssd_samples(datatype="train"):
 
 
 if __name__ == "__main__":
-    combine_ssd_samples()
+    build_ssd_samples()

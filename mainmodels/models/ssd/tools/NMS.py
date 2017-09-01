@@ -16,11 +16,9 @@ import numpy as np
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.tools.data_prep import calc_iou
 
+IMG_W, IMG_H = g_SSDConfig.IMG_W, g_SSDConfig.IMG_H
 
-def check_box_legal(box_coords, src_rect=[g_SSDConfig.IMG_W,
-                                          g_SSDConfig.IMG_H,
-                                          g_SSDConfig.IMG_W,
-                                          g_SSDConfig.IMG_H]):
+def check_box_legal(box_coords, src_rect=[IMG_W, IMG_H, IMG_W, IMG_H]):
     for i in range(0, len(box_coords)):
         if box_coords[i] < 0:
             return False
@@ -37,8 +35,7 @@ def nms(y_pred_conf, y_pred_loc, prob):
         traffic_label_dict = json.load(handle)
         for key, val in traffic_label_dict.items():
             class_boxes[val] = list()
-    scale = np.array([g_SSDConfig.IMG_W, g_SSDConfig.IMG_H,
-                      g_SSDConfig.IMG_W, g_SSDConfig.IMG_H])
+
     class_boxes[0] = list()
     y_idx = 0
     for fm_size in g_SSDConfig.FM_SIZES:
@@ -47,12 +44,14 @@ def nms(y_pred_conf, y_pred_loc, prob):
             for col in range(fm_w):
                 for db in g_SSDConfig.DEFAULT_BOXES:
                     if prob[y_idx] > g_SSDConfig.CONF_THRESH and y_pred_conf[y_idx] > 0.:
-                        # xc, yc = row+0.5, col+0.5
-                        # center_coords = np.array([xc, yc, xc, yc])
+                        xc, yc = row+0.5, col+0.5
+                        center_coords = np.array([xc, yc, xc, yc])
                         # predictions are offsets to center of fm cell
-                        # abs_box_coords = center_coords + y_pred_loc[y_idx * 4: y_idx * 4 + 4]
-                        abs_box_coords = y_pred_loc[y_idx * 4: y_idx * 4 + 4]
+                        abs_box_coords = center_coords + y_pred_loc[y_idx * 4: y_idx * 4 + 4]
                         # Calculate predicted box coordinates in actual image
+                        scale = np.array(
+                            [IMG_W / fm_w, IMG_H / fm_h, IMG_W / fm_w,
+                             IMG_H / fm_h])
                         box_coords = abs_box_coords * scale
                         box_coords = [int(round(x)) for x in box_coords]
                         if check_box_legal(box_coords):
