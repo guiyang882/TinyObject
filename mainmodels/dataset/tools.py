@@ -9,6 +9,7 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import namedtuple
+import random
 
 import cv2
 
@@ -17,7 +18,20 @@ SampleStep = namedtuple("SampleStep", ["width", "height"])
 Point = namedtuple("Point", ["x", "y"])
 Rectangle = namedtuple("Rectangle", ["left_up", "right_down"])
 BBox = namedtuple("BBox", ["xmin", "ymin", "xmax", "ymax"])
+RANDOM_SAMPLE_NUM = 500  # 随机采样500张原始图像用来生成训练样本
 
+
+# 采用蓄水池采样算法对序列进行采样
+def rand_selected_file(file_list, K=RANDOM_SAMPLE_NUM):
+    res = list()
+    for i in range(0, len(file_list)):
+        if i < K:
+            res.append(file_list[i])
+        else:
+            M = random.randint(0, i)
+            if M < K:
+                res[M] = file_list[i]
+    return res
 
 def show_image_with_annotation(abs_file_path, target_info_dict):
     image = cv2.imread(abs_file_path)

@@ -14,7 +14,7 @@ import pickle
 
 from concurrent.futures import ThreadPoolExecutor
 
-import __init
+# import __init
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 

@@ -152,8 +152,7 @@ def generate_output(input_files, options):
 if __name__ == '__main__':
     class RunOption(object):
         proj_dir = "/Volumes/projects/第三方数据下载/JL1ST" \
-                   "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD"
-        input_dir = "input_dir"
+                   "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD_AlexNet"
         mode = "image"
         sign_file_path = proj_dir + "/target.label.json"
         inference_out = "/".join([proj_dir, "test", "output"])

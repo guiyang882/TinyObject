@@ -8,7 +8,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os, json, codecs
+import os
+import json
+import codecs
 import random
 import xml.dom.minidom
 import cv2
@@ -21,9 +23,22 @@ annotation_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_annotation/"
 image_dir = dir_prefix + "SRC_" + JL1ST_NAME + "/"
 target_save_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_TARGET/"
 neg_samples_save_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_NEG_SAMPLES/"
-ssd_sample_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_SSD/"
-SSD_IMG_W, SSD_IMG_H = 512, 512
+ssd_sample_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_SSD_AlexNet/"
+SSD_IMG_W, SSD_IMG_H = 400, 260
+RANDOM_SAMPLE_NUM = 500  # 随机采样500张原始图像用来生成训练样本
 
+
+# 采用蓄水池采样算法对序列进行采样
+def rand_selected_file(file_list):
+    res = list()
+    for i in range(0, len(file_list)):
+        if i < RANDOM_SAMPLE_NUM:
+            res.append(file_list[i])
+        else:
+            M = random.randint(0, i)
+            if M < RANDOM_SAMPLE_NUM:
+                res[M] = file_list[i]
+    return res
 
 # 给定一个标记文件，找到对应的目标的位置信息
 def extract_airplane_posinfo(filename):
@@ -200,7 +215,8 @@ def create_ssd_training_samples():
     if not (os.path.exists(annotation_dir) and os.path.isdir(annotation_dir)):
         raise IOError("%s Not Found !" % annotation_dir)
     annotation_lists = os.listdir(annotation_dir)
-    cnt = 0
+
+    annotation_lists = rand_selected_file(annotation_lists)
     for annotation_file in annotation_lists:
         abs_anno_path = annotation_dir + annotation_file
         anno_targets = extract_airplane_posinfo(abs_anno_path)
@@ -212,9 +228,6 @@ def create_ssd_training_samples():
         src_img = cv2.imread(abs_src_path)
         _random_crop(src_image=src_img, anno_targets=anno_targets,
                      save_prefix=image_name)
-        cnt += 1
-        if cnt > 1000:
-            break
         # break
 
 

@@ -25,3 +25,4 @@ output/
 !/attached/airplane.png
 !/attached/drawLine.png
 trainmodel/
+mainmodels/models/ssd/visualization/tensorboard_out/

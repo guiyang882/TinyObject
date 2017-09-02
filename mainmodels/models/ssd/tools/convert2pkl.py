@@ -18,6 +18,7 @@ import json
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.tools.data_prep import calc_iou
+from mainmodels.dataset.tools import rand_selected_file
 
 
 IMG_H, IMG_W = g_SSDConfig.IMG_H, g_SSDConfig.IMG_W
@@ -44,11 +45,11 @@ def parse_anno_file(abs_anno_path):
 
 def build_ssd_samples():
     dir_path = "/Volumes/projects/第三方数据下载/JL1ST" \
-               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD/"
+               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD_AlexNet/"
     if not os.path.isdir(dir_path):
         raise IOError("Not Found !")
     anno_filelist = os.listdir(dir_path + "ssd_anchors")
-    print(len(anno_filelist))
+    anno_filelist = rand_selected_file(anno_filelist, 1000)
     total_anno_info = dict()
     save_cnt = 0
     for file in anno_filelist:
@@ -129,7 +130,7 @@ def show_ssd_samples():
 
 
     dir_path = "/Volumes/projects/第三方数据下载/JL1ST" \
-               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD/"
+               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD_AlexNet/"
     if not os.path.isdir(dir_path):
         raise IOError("%s Not Found !" % dir_path)
     anno_filelist = os.listdir(dir_path + "ssd_label_box_src")
