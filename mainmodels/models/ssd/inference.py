@@ -134,19 +134,9 @@ def generate_output(input_files, options):
 
                 head, tail = os.path.split(image_file)
                 cv2.imwrite('%s/%s' % (options.inference_out, tail), image)
-            print('Output saved in %s' % options.inference_out)
-        elif options.mode == 'demo':
-            print('Demo mode: Running inference on images in sample_images/')
-            image_files = os.listdir(options.sample_images_dir)
-
-            for image_file in image_files:
-                print('Running inference on %s/%s' % (
-                    options.sample_images_dir, image_file))
-                image_orig = np.asarray(
-                    Image.open("/".join([options.sample_images_dir, image_file])))
-                image = run_inference(image_orig, model, sess, sign_map)
-                cv2.imshow("res", image)
+                cv2.imshow("ssd res", image)
                 cv2.waitKey()
+            print('Output saved in %s' % options.inference_out)
 
 
 if __name__ == '__main__':

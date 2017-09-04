@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.ssdmodel import SSDModel
@@ -23,12 +24,26 @@ from mainmodels.dataset.show_target import show_annotation_image_file
 from mainmodels.dataset.show_target import show_ssd_prepare_boxes
 
 IMG_W, IMG_H = g_SSDConfig.IMG_W, g_SSDConfig.IMG_H
+CONF_THRESH = g_SSDConfig.CONF_THRESH
 sign_map = {
     0: "bg",
     1: "plane"
 }
 
-color_list = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (127, 127, 0)]
+color_list = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (127, 100, 200)]
+
+def read_image_sample(image_abs_file):
+    image = Image.open(image_abs_file)
+    if g_SSDConfig.NUM_CHANNELS == 1:
+        image = image.convert('L')
+    image = image.resize((g_SSDConfig.IMG_W, g_SSDConfig.IMG_H), Image.LANCZOS)
+    image = np.asarray(image)
+
+    images = np.array([image])  # create a "batch" of 1 image
+    if g_SSDConfig.NUM_CHANNELS == 1:
+        images = np.expand_dims(images, axis=-1)
+    images = images / 127.5 - 1.
+    return images
 
 # 根据输入的原始尺寸图像和对应的feature map对应的大小
 # 绘制出对应的框在原始图中的框
@@ -40,7 +55,7 @@ def vis_one_feature_map(src_image, y_pred_conf, y_pred_loc, prob):
         for row in range(fm_h):
             for col in range(fm_w):
                 for db in g_SSDConfig.DEFAULT_BOXES:
-                    if prob[y_idx] > g_SSDConfig.CONF_THRESH and y_pred_conf[y_idx] > 0.:
+                    if prob[y_idx] > CONF_THRESH and y_pred_conf[y_idx] > 0.:
                         xc, yc = row+0.5, col+0.5
                         center_coords = np.array([xc, yc, xc, yc])
                         # predictions are offsets to center of fm cell
@@ -64,25 +79,13 @@ def vis_one_feature_map(src_image, y_pred_conf, y_pred_loc, prob):
         cv2.waitKey()
 
 
-def run_inference(image_abs_file, model, sess):
-
+def run_inference(images, model, sess):
     # Get relevant tensors
     x = model['x']
     is_training = model['is_training']
     preds_conf = model['preds_conf']
     preds_loc = model['preds_loc']
     probs = model['probs']
-
-    image = Image.open(image_abs_file)
-    if g_SSDConfig.NUM_CHANNELS == 1:
-        image = image.convert('L')
-    image = image.resize((g_SSDConfig.IMG_W, g_SSDConfig.IMG_H), Image.LANCZOS)
-    image = np.asarray(image)
-
-    images = np.array([image])  # create a "batch" of 1 image
-    if g_SSDConfig.NUM_CHANNELS == 1:
-        images = np.expand_dims(images, axis=-1)
-    images = images / 127.5 - 1.
 
     # Perform object detection
     t0 = time.time()
@@ -98,16 +101,37 @@ def run_inference(image_abs_file, model, sess):
     prob = probs_val[0]
     y_pred_loc = preds_loc_val[0]
 
-    vis_one_feature_map(image, y_pred_conf, y_pred_loc, prob)
+    vis_one_feature_map(images[0], y_pred_conf, y_pred_loc, prob)
     print('Inference + NMS took %.1f ms (%.2f fps)' % (
         (time.time() - t0) * 1000, 1 / (time.time() - t0)))
 
-    return image
+
+def show_details_by_name(images, model, sess, tensor_name, tensor_shape):
+    x = model['x']
+    is_training = model['is_training']
+    show_tensor = tf.get_default_graph().get_tensor_by_name(tensor_name)
+
+    tensor_values = sess.run([show_tensor],
+                             feed_dict={x: images, is_training: False})
+    plt.figure(num=tensor_name)
+    for tensor_value in tensor_values:
+        print(tensor_value.shape)
+        n_channel = tensor_value.shape[-1]
+        for idx in range(0, n_channel):
+            tmp = tensor_value[:, :, :, idx]
+            tmp = np.squeeze(tmp, axis=0)
+            # n = 1 if (idx+1) % 17 == 0 else (idx+1) % 17
+            plt.subplot(tensor_shape[0], tensor_shape[1], idx+1)
+            plt.imshow(tmp)
+            plt.axis('off')
+    plt.show()
 
 
 def generate_output(image_file):
+    images = read_image_sample(image_file)
+
     # Launch the graph
-    with tf.Graph().as_default(), tf.Session() as sess:
+    with tf.Session() as sess:
         # "Instantiate" neural network, get relevant tensors
         model = SSDModel()
 
@@ -115,7 +139,30 @@ def generate_output(image_file):
         saver = tf.train.Saver()
         print('Restoring trained model at %s' % g_SSDConfig.PRETRAIN_MODEL_PATH)
         saver.restore(sess, g_SSDConfig.PRETRAIN_MODEL_PATH)
-        run_inference(image_file, model, sess)
+        # 主要负责各层卷积模版的提取和可视化
+        show_tensor_list = [
+            ("conv1/convolution:0", (8, 8)),
+            ("conv1/Relu:0", (8, 8)),
+            ("pool1/MaxPool:0", (8, 8)),
+            ("conv2/convolution:0", (14, 14)),
+            ("conv2/Relu:0", (14, 14)),
+            ("pool2/MaxPool:0", (14, 14)),
+            ("conv3/convolution:0", (20, 20)),
+            ("conv3/Relu:0", (20, 20)),
+            ("conv4/convolution:0", (20, 20)),
+            ("conv4/Relu:0", (20, 20)),
+            ("conv5/convolution:0", (20, 20)),
+            ("conv5/Relu:0", (20, 20)),
+        ]
+        graph_def = tf.get_default_graph().as_graph_def()
+        for node in graph_def.node:
+            print(node.name)
+        return
+        show_idx = 2
+        show_details_by_name(images, model, sess,
+                             show_tensor_list[show_idx][0],
+                             show_tensor_list[show_idx][1])
+        # run_inference(images, model, sess)
 
 
 if __name__ == '__main__':

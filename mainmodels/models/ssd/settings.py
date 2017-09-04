@@ -17,7 +17,7 @@ print(proj_dir)
 
 class SSDConfig(object):
     # Model selection and dependent parameters
-    MODEL = "AlexNet"  # AlexNet/VGG16/ResNet50
+    MODEL = "ResAlexNet"  # AlexNet/VGG16/ResNet50
 
     # Default boxes
     # DEFAULT_BOXES = ((x1_offset, y1_offset, x2_offset, y2_offset), (...), ...)
@@ -32,43 +32,12 @@ class SSDConfig(object):
             (-0.5, -0.5, 0.5, 0.5), (0.2, 0.2, -0.2, -0.2),
             (-0.8, -0.2, 0.8, 0.2), (-0.2, -0.8, 0.2, 0.8)
         )
-    elif MODEL == "JLFirst":
+    elif MODEL == "ResAlexNet":
         DEFAULT_BOXES = (
             (-0.95, -0.95, 0.95, 0.95),
             (-0.75, -0.75, 0.75, 0.75),
             (-0.55, -0.55, 0.55, 0.55),
-            (-0.75, -0.65, 0.75, 0.65),
-            (-0.65, -0.75, 0.65, 0.75),
-            (-0.95, -0.65, 0.95, 0.65),
-            (-0.65, -0.95, 0.65, 0.95),
-            (-1.15, -0.95, 0.75, 0.95),
-            (-0.95, -0.75, 0.55, 0.75),
-            (-0.75, -0.55, 0.35, 0.55),
-            (-0.95, -0.65, 0.55, 0.65),
-            (-0.85, -0.75, 0.45, 0.75),
-            (-1.15, -0.65, 0.75, 0.65),
-            (-0.85, -0.95, 0.45, 0.95),
-            (-0.75, -0.95, 1.15, 0.95),
-            (-0.55, -0.75, 0.95, 0.75),
-            (-0.35, -0.55, 0.75, 0.55),
-            (-0.55, -0.65, 0.95, 0.65),
-            (-0.45, -0.75, 0.85, 0.75),
-            (-0.75, -0.65, 1.15, 0.65),
-            (-0.45, -0.95, 0.85, 0.95),
-            (-0.95, -1.15, 0.95, 1.15),
-            (-0.75, -0.95, 0.75, 0.95),
-            (-0.55, -0.75, 0.55, 0.75),
-            (-0.75, -0.85, 0.75, 0.85),
-            (-0.65, -0.95, 0.65, 0.95),
-            (-0.95, -0.85, 0.95, 0.85),
-            (-0.65, -1.15, 0.65, 1.15),
-            (-0.95, -0.75, 0.95, 1.15),
-            (-0.75, -0.55, 0.75, 0.95),
-            (-0.55, -0.35, 0.55, 0.75),
-            (-0.75, -0.45, 0.75, 0.85),
-            (-0.65, -0.55, 0.65, 0.95),
-            (-0.95, -0.45, 0.95, 0.85),
-            (-0.65, -0.75, 0.65, 1.15)
+            (-0.75, -0.65, 0.75, 0.65)
         )
     else:
         pass
@@ -79,7 +48,7 @@ class SSDConfig(object):
         NUM_CLASSES = 2  # 1 signs + 1 background class
     elif MODEL == "NWPUNet":
         NUM_CLASSES = 6  # 8 signs + 1 background class
-    elif MODEL == "JLFirst":
+    elif MODEL == "ResAlexNet":
         NUM_CLASSES = 2  # 1 airplane + 1 background class
     else:
         raise NotImplementedError('Model not implemented')
@@ -96,7 +65,7 @@ class SSDConfig(object):
     NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
 
     # Class confidence threshold to count as detection
-    CONF_THRESH = 0.95
+    CONF_THRESH = 0.80
 
     if MODEL == 'AlexNet':
         IMG_H, IMG_W = 260, 400
@@ -107,9 +76,9 @@ class SSDConfig(object):
         # feature map sizes for SSD hooks via TensorBoard visualization (HxW)
         # FM_SIZES = [[100, 150], [50, 75], [25, 38], [13, 19]]
         FM_SIZES = [[50, 75], [25, 37], [13, 19]]
-    elif MODEL == "JLFirst":
+    elif MODEL == "ResAlexNet":
         IMG_H, IMG_W = 512, 512
-        FM_SIZES = [[32, 32], [16, 16], [8, 8]]
+        FM_SIZES = [[64, 64], [32, 32], [16, 16], [8, 8]]
     else:
         raise NotImplementedError('Model not implemented')
 
@@ -118,18 +87,15 @@ class SSDConfig(object):
     REG_SCALE = 1e-2  # L2 regularization strength
     LOC_LOSS_WEIGHT = 1.  # weight of localization loss: loss = conf_loss + LOC_LOSS_WEIGHT * loc_loss
 
-    # for Multi-GPU learning
-    GPU_NUMS = 1
-    TOWER_NAME = "TOWER"
-    INIT_LEARNING_RATE = 0.001
+    INIT_LEARNING_RATE = 0.005
     NUM_EPOCHS_PER_DECAY = 350.0
     LEARNING_RATE_DECAY_FACTOR = 0.1
     MOVING_AVERAGE_DECAY = 0.9999
 
     # Training process
     RESUME = False  # resume training from previously saved model?
-    NUM_EPOCH = 1000
-    BATCH_SIZE = 32  # batch size for training (relatively small)
+    NUM_EPOCH = 10000
+    BATCH_SIZE = 20  # batch size for training (relatively small)
     MODEL_SAVE_FREQ = 10  # 每隔多少隔epoch进行模型的存储
     VALID_FREQ = 50  # 每个多少个epoch进行验证的集的测试
     VALIDATION_SIZE = 0.05  # fraction of total training set to use as validation set
@@ -140,7 +106,7 @@ class SSDConfig(object):
         DATASET_BASE_DIR = "/Volumes/projects/第三方数据下载/JL1ST/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD_AlexNet"
     elif MODEL == "NWPUNet":
         DATASET_BASE_DIR = "/Volumes/projects/NWPU-VHR-10-dataset"
-    elif MODEL == "JLFirst":
+    elif MODEL == "ResAlexNet":
         DATASET_BASE_DIR = "/home/ai-i-liuguiyang/repos_ssd/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD"
     else:
         raise NotImplementedError('Model not implemented')

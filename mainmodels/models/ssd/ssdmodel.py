@@ -14,7 +14,7 @@ import tensorflow.contrib.slim as slim
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd.featuremodel.alexnet import AlexNet
 from mainmodels.models.ssd.featuremodel.nwpunet import NWPUNet
-from mainmodels.models.ssd.featuremodel.jlfirst import JLFirstNet
+from mainmodels.models.ssd.featuremodel.resalexnet import ResAlexNet
 
 
 def SSDHook(feature_map, hook_id):
@@ -137,8 +137,8 @@ def SSDModel():
         model = AlexNet()
     elif g_SSDConfig.MODEL == "NWPUNet":
         model = NWPUNet()
-    elif g_SSDConfig.MODEL == "JLFirst":
-        model = JLFirstNet()
+    elif g_SSDConfig.MODEL == "ResAlexNet":
+        model = ResAlexNet()
     else:
         raise NotImplementedError('Model %s not supported' % g_SSDConfig.MODEL)
 
@@ -151,6 +151,7 @@ def SSDModel():
         ssd_model[k] = model_helper[k]
 
     return ssd_model
+
 
 if __name__ == '__main__':
     obj = SSDModel()

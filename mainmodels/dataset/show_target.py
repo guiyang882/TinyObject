@@ -50,7 +50,8 @@ def show_annotation_image_file(file_name):
             cv2.rectangle(src_img, (area[0], area[1]), (area[2], area[3]),
                           (0, 0, 255), 2)
     cv2.imshow("GT", src_img)
-    cv2.waitKey()
+    cv2.waitKey(10)
+
 
 # 展示SSD构造训练样本时产生的候选框的目标
 def show_ssd_prepare_boxes(file_name):
@@ -64,7 +65,8 @@ def show_ssd_prepare_boxes(file_name):
             cv2.rectangle(src_img, tuple(box_pos[:2]), tuple(box_pos[2:]),
                           (0, 255, 0), 1)
     cv2.imshow("SSD_BOX", src_img)
-    cv2.waitKey()
+    cv2.waitKey(10)
+
 
 if __name__ == '__main__':
     pass

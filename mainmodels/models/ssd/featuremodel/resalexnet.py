@@ -2,7 +2,7 @@
 # All rights reserved.
 #
 # Author: liuguiyang <liuguiyangnwpu@gmail.com>
-# Date:   2017/7/8
+# Date:   2017/6/14
 
 from __future__ import absolute_import
 from __future__ import division
@@ -14,7 +14,7 @@ import tensorflow.contrib.slim as slim
 from mainmodels.models.ssd.settings import g_SSDConfig
 from mainmodels.models.ssd import ssdmodel
 
-def JLFirstNet():
+def ResAlexNet():
     # Image batch tensor and dropout keep prob placeholders
     x = tf.placeholder(tf.float32,
                        [None, g_SSDConfig.IMG_H, g_SSDConfig.IMG_W,
@@ -26,35 +26,43 @@ def JLFirstNet():
     preds_loc = []
 
     # Use batch normalization for all convolution layers
-    with slim.arg_scope([slim.conv2d], normalizer_fn=slim.batch_norm,
+    with slim.arg_scope([slim.conv2d],
+                        normalizer_fn=slim.batch_norm,
                         normalizer_params={'is_training': True},
-                        weights_regularizer=slim.l2_regularizer(
-                            scale=g_SSDConfig.REG_SCALE)):
-        net = slim.conv2d(x, 64, [5, 5], 1, padding='SAME', scope='conv1')
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool1')
+                        weights_regularizer=slim.l2_regularizer(scale=g_SSDConfig.REG_SCALE)):
+        net = slim.conv2d(x, 64, [11, 11], 4, padding='SAME', scope='conv1')
+        pool1 = slim.max_pool2d(net, [3, 3], 2, padding='SAME', scope='pool1')
+        net = slim.conv2d(net, 192, [5, 5], 2, scope='conv2')
+        pool2 = slim.max_pool2d(net, [3, 3], 2, padding='SAME', scope='pool2')
 
-        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv2')
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool2')
+        normalization_factor = tf.sqrt(tf.reduce_mean(tf.square(net)))
+        l2_pool1 = pool1 / (
+            tf.sqrt(tf.reduce_mean(
+                tf.square(pool1))) / normalization_factor)
+        l2_pool2 = pool2 / (
+            tf.sqrt(tf.reduce_mean(
+                tf.square(pool2))) / normalization_factor)
 
-        net = slim.conv2d(net, 128, [3, 3], 1, scope='conv3')
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool3')
+        net_conf, net_loc = ssdmodel.SSDHook(net, 'conv2')
+        preds_conf.append(net_conf)
+        preds_loc.append(net_loc)
 
-        net = slim.conv2d(net, 128, [3, 3], scope='conv4')
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool4')
+        net = tf.concat([l2_pool1, net], 3)
+        net = slim.conv2d(net, 384, [3, 3], 2, scope='conv3')
+        net = tf.concat([l2_pool2, net], 3)
+        net = slim.conv2d(net, 512, [3, 3], scope='conv4')
+        net = slim.conv2d(net, 1024, [1, 1], scope='conv5')
 
-        net = slim.conv2d(net, 128, [3, 3], scope='conv5')
         net_conf, net_loc = ssdmodel.SSDHook(net, 'conv5')
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
 
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool5')
-        net = slim.conv2d(net, 128, [3, 3], scope='conv6')
+        net = slim.conv2d(net, 512, [3, 3], 2, scope='conv6')
         net_conf, net_loc = ssdmodel.SSDHook(net, 'conv6')
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
 
-        net = slim.max_pool2d(net, [2, 2], 2, scope='pool6')
-        net = slim.conv2d(net, 128, [3, 3], scope='conv7')
+        net = slim.conv2d(net, 256, [3, 3], 2, scope='conv7')
         net_conf, net_loc = ssdmodel.SSDHook(net, 'conv7')
         preds_conf.append(net_conf)
         preds_loc.append(net_loc)
@@ -74,4 +82,4 @@ def JLFirstNet():
 
 
 if __name__ == '__main__':
-    JLFirstNet()
+    ResAlexNet()
