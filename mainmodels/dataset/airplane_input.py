@@ -15,6 +15,7 @@ import random
 import xml.dom.minidom
 import cv2
 
+from mainmodels.models.ssd.settings import g_SSDConfig
 
 # 解析XML文本得到JL1ST的目标数据
 dir_prefix = "/Volumes/projects/第三方数据下载/JL1ST/"
@@ -24,7 +25,7 @@ image_dir = dir_prefix + "SRC_" + JL1ST_NAME + "/"
 target_save_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_TARGET/"
 neg_samples_save_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_NEG_SAMPLES/"
 ssd_sample_dir = dir_prefix + "SRC_" + JL1ST_NAME + "_SSD_AlexNet/"
-SSD_IMG_W, SSD_IMG_H = 400, 260
+SSD_IMG_W, SSD_IMG_H = g_SSDConfig.IMG_W, g_SSDConfig.IMG_H
 RANDOM_SAMPLE_NUM = 500  # 随机采样500张原始图像用来生成训练样本
 
 

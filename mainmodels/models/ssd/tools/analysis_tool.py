@@ -130,7 +130,7 @@ def show_ssd_samples():
 
 
     dir_path = "/Volumes/projects/第三方数据下载/JL1ST" \
-               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD_AlexNet/"
+               "/SRC_JL101B_MSS_20160904180811_000013363_101_001_L1B_MSS_SSD/"
     if not os.path.isdir(dir_path):
         raise IOError("%s Not Found !" % dir_path)
     anno_filelist = os.listdir(dir_path + "ssd_label_box_src")
@@ -251,4 +251,4 @@ def combine_ssd_samples(datatype="train"):
 
 
 if __name__ == "__main__":
-    build_ssd_samples()
+    show_ssd_samples()

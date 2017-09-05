@@ -176,7 +176,6 @@ def run_training():
 
                 # Perform gradient update (i.e. training step) on current batch
                 _, loss = sess.run([optimizer, reported_loss], feed_dict={
-                    # _, loss, loc_loss_dbg, loc_loss_mask, loc_loss = sess.run([optimizer, reported_loss, model['loc_loss_dbg'], model['loc_loss_mask'], model['loc_loss']],feed_dict={  # DEBUG
                     x: images,
                     y_true_conf: y_true_conf_gen,
                     y_true_loc: y_true_loc_gen,
@@ -188,7 +187,7 @@ def run_training():
 
             # A rough estimate of loss for this epoch (overweights the last batch)
             train_loss = np.mean(losses)
-            print("train_loss is: %f" % train_loss)
+            print("train_loss is: %f" % train_loss / g_SSDConfig.BATCH_SIZE)
 
             if epoch and epoch % g_SSDConfig.VALID_FREQ == 0:
                 # Calculate validation loss at the end of the epoch

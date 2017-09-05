@@ -17,7 +17,7 @@ print(proj_dir)
 
 class SSDConfig(object):
     # Model selection and dependent parameters
-    MODEL = "ResAlexNet"  # AlexNet/VGG16/ResNet50
+    MODEL = "ResAlexNet"
 
     # Default boxes
     # DEFAULT_BOXES = ((x1_offset, y1_offset, x2_offset, y2_offset), (...), ...)
@@ -63,7 +63,7 @@ class SSDConfig(object):
     if MODEL == "AlexNet":
         NUM_CLASSES = 2  # 1 signs + 1 background class
     elif MODEL == "NWPUNet":
-        NUM_CLASSES = 6  # 8 signs + 1 background class
+        NUM_CLASSES = 6  # 5 signs + 1 background class
     elif MODEL == "ResAlexNet":
         NUM_CLASSES = 2  # 1 airplane + 1 background class
     else:
@@ -78,10 +78,10 @@ class SSDConfig(object):
     NMS_IOU_THRESH = 0.20  # IOU threshold for non-max suppression
 
     # Negatives-to-positives ratio used to filter training data
-    NEG_POS_RATIO = 5  # negative:positive = NEG_POS_RATIO:1
+    NEG_POS_RATIO = 4  # negative:positive = NEG_POS_RATIO:1
 
     # Class confidence threshold to count as detection
-    CONF_THRESH = 0.80
+    CONF_THRESH = 0.60
 
     if MODEL == 'AlexNet':
         IMG_H, IMG_W = 260, 400
