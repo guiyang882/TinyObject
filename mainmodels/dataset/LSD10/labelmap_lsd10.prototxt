@@ -1,0 +1,65 @@
+item {
+  name: "none_of_the_above"
+  label: 0
+  display_name: "background"
+}
+item {
+  name: "airplane"
+  label: 1
+  display_name: "airplane"
+}
+item {
+  name: "ship"
+  label: 2
+  display_name: "ship"
+}
+item {
+  name: "storagetank"
+  label: 3
+  display_name: "storagetank"
+}
+item {
+  name: "baseballdiamond"
+  label: 4
+  display_name: "baseballdiamond"
+}
+item {
+  name: "tenniscourt"
+  label: 5
+  display_name: "tenniscourt"
+}
+item {
+  name: "basketballcourt"
+  label: 6
+  display_name: "basketballcourt"
+}
+item {
+  name: "groundtrackfield"
+  label: 7
+  display_name: "groundtrackfield"
+}
+item {
+  name: "harbor"
+  label: 8
+  display_name: "harbor"
+}
+item {
+  name: "bridge"
+  label: 9
+  display_name: "bridge"
+}
+item {
+  name: "vehicle"
+  label: 10
+  display_name: "vehicle"
+}
+item {
+  name: "van"
+  label: 11
+  display_name: "van"
+}
+item {
+  name: "truck"
+  label: 12
+  display_name: "truck"
+}

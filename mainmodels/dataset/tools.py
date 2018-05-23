@@ -9,9 +9,15 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import namedtuple
-import random
 
+import json
+
+import os
+import random
+import xml.dom.minidom
 import cv2
+
+from lxml.etree import Element, SubElement, tostring
 
 
 SampleStep = namedtuple("SampleStep", ["width", "height"])
@@ -33,6 +39,7 @@ def rand_selected_file(file_list, K=RANDOM_SAMPLE_NUM):
                 res[M] = file_list[i]
     return res
 
+
 def show_image_with_annotation(abs_file_path, target_info_dict):
     image = cv2.imread(abs_file_path)
     for label, target_info_list in target_info_dict.items():
@@ -45,6 +52,7 @@ def show_image_with_annotation(abs_file_path, target_info_dict):
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (255, 0, 0))
     cv2.imshow("test", image)
     cv2.waitKey()
+
 
 def is_region_valid(region):
     if not isinstance(region, Rectangle):
@@ -59,6 +67,7 @@ def is_region_valid(region):
         return False
     return True
 
+
 def calc_region_area(region):
     if not isinstance(region, Rectangle):
         raise TypeError("|%s| must be Rectangle Type !" % str(region))
@@ -66,22 +75,26 @@ def calc_region_area(region):
     return ((region.right_down.x - region.left_up.x) *
             (region.right_down.y - region.left_up.y))
 
+
 def bbox_2_rectangle(bbox):
     if not isinstance(bbox, BBox):
         raise TypeError("|%s| must be BBox Type !" % str(bbox))
     return Rectangle(Point(bbox.xmin, bbox.ymin), Point(bbox.xmax, bbox.ymax))
 
+
 def is_region_inner(larger_region, small_region):
     flag_left = (larger_region.left_up.x <= small_region.left_up.x and
                  larger_region.left_up.y <= small_region.left_up.y)
     flag_right = (larger_region.right_down.x >= small_region.right_down.x
-                and larger_region.right_down.y >= small_region.right_down.y)
+                  and larger_region.right_down.y >= small_region.right_down.y)
     if flag_left and flag_right:
         return True
     return False
 
+
 def is_region_overlap(region01, region02):
-    if not (isinstance(region01, Rectangle) and isinstance(region02, Rectangle)):
+    if not (
+        isinstance(region01, Rectangle) and isinstance(region02, Rectangle)):
         raise TypeError("region0x must be Rectangle Type !")
     left_up_pos = Point(
         max(region01.left_up.x, region02.left_up.x),
@@ -91,6 +104,7 @@ def is_region_overlap(region01, region02):
         min(region01.right_down.y, region02.right_down.y))
     return (left_up_pos.x < right_down_pos.x and
             left_up_pos.y < right_down_pos.y)
+
 
 def region_overlap_area(rect01, rect02):
     """计算两个区域的重叠的面积"""
@@ -108,8 +122,8 @@ def region_overlap_area(rect01, rect02):
         min(rect01.right_down.y, rect02.right_down.y))
     return calc_region_area(Rectangle(left_up_pos, right_down_pos))
 
-class UtilityTools(object):
 
+class UtilityTools(object):
     @staticmethod
     def ergodic_crop_region(src_region, target_height, target_width, step=None):
         if not isinstance(src_region, Rectangle):
@@ -126,17 +140,20 @@ class UtilityTools(object):
             raise IOError("step must be SampleStep Type !")
         rect_list = []
         step_width, step_height = step
-        for st_y in range(left_up.y, right_down.y-target_height+1, step_height):
-            for st_x in range(left_up.x, right_down.x-target_width+1, step_width):
+        for st_y in range(left_up.y, right_down.y - target_height + 1,
+                          step_height):
+            for st_x in range(left_up.x, right_down.x - target_width + 1,
+                              step_width):
                 t_left_pos = Point(st_x, st_y)
-                t_right_pos = Point(st_x+target_width, st_y+target_height)
+                t_right_pos = Point(st_x + target_width, st_y + target_height)
                 t_rect = Rectangle(t_left_pos, t_right_pos)
                 rect_list.append(t_rect)
         return rect_list
 
     @staticmethod
     def ergodic_crop_region_with_transform(
-        src_region, object_pos_dict, target_height, target_width, step=None):
+            src_region, object_pos_dict, target_height, target_width,
+            step=None):
         """
         :param src_region: 用户输入的原始图像的大小
         :param object_pos_dict: 全局目标object_pos_dict = {"label": [BBox, BBox]}
@@ -157,10 +174,12 @@ class UtilityTools(object):
 
         rect_objects_dict = dict()
         step_width, step_height = step
-        for st_y in range(left_up.y, right_down.y-target_height+1, step_height):
-            for st_x in range(left_up.x, right_down.x-target_width+1, step_width):
+        for st_y in range(left_up.y, right_down.y - target_height + 1,
+                          step_height):
+            for st_x in range(left_up.x, right_down.x - target_width + 1,
+                              step_width):
                 t_left_pos = Point(st_x, st_y)
-                t_right_pos = Point(st_x+target_width, st_y+target_height)
+                t_right_pos = Point(st_x + target_width, st_y + target_height)
                 t_rect = Rectangle(t_left_pos, t_right_pos)
                 transformed_pos_dict = UtilityTools.transform_global_object_pos(
                     t_rect, object_pos_dict)
@@ -190,10 +209,10 @@ class UtilityTools(object):
         for label, object_pos_list in object_pos_dict.items():
             transformed_list = []
             for bbox in object_pos_list:
-                new_pos = BBox(bbox.xmin-small_region.left_up.x,
-                               bbox.ymin-small_region.left_up.y,
-                               bbox.xmax-small_region.left_up.x,
-                               bbox.ymax-small_region.left_up.y)
+                new_pos = BBox(bbox.xmin - small_region.left_up.x,
+                               bbox.ymin - small_region.left_up.y,
+                               bbox.xmax - small_region.left_up.x,
+                               bbox.ymax - small_region.left_up.y)
                 region_bbox = bbox_2_rectangle(new_pos)
                 if not is_region_valid(region_bbox):
                     continue
@@ -204,6 +223,106 @@ class UtilityTools(object):
                 transformed_pos_dict[label] = transformed_list
         return transformed_pos_dict
 
+
+# 给定一个标记文件，找到对应的目标的位置信息
+def extract_airplane_posinfo(filename):
+    if not os.path.exists(filename):
+        raise IOError(filename + " not exists !")
+    # 使用minidom解析器打开 XML 文档
+    DOMTree = xml.dom.minidom.parse(filename)
+    collection = DOMTree.documentElement
+    # 获取集合中所有的目标
+    targets = collection.getElementsByTagName("object")
+    res = []
+    for target in targets:
+        target_name = target.getElementsByTagName('name')[0].childNodes[0].data
+        bndbox = target.getElementsByTagName("bndbox")[0]
+        xmin = bndbox.getElementsByTagName("xmin")[0].childNodes[0].data
+        ymin = bndbox.getElementsByTagName("ymin")[0].childNodes[0].data
+        xmax = bndbox.getElementsByTagName("xmax")[0].childNodes[0].data
+        ymax = bndbox.getElementsByTagName("ymax")[0].childNodes[0].data
+        res.append([int(xmin), int(ymin), int(xmax), int(ymax), target_name])
+    return res
+
+def write_xml_format(abs_img_path, abs_anno_path, anno_list, img_format="jpg"):
+    src_img_data = cv2.imread(abs_img_path)
+    img_height, img_width, img_channle = src_img_data.shape
+
+    node_root = Element('annotation')
+    node_folder = SubElement(node_root, 'folder')
+    node_folder.text = 'CSUVideo'
+    node_filename = SubElement(node_root, 'filename')
+    if abs_img_path.split(".")[-1] != img_format:
+        abs_img_path = ".".join(abs_img_path.split(".")[:-1] + [img_format])
+    node_filename.text = abs_img_path.split("/")[-1]
+
+    node_size = SubElement(node_root, 'size')
+    node_width = SubElement(node_size, 'width')
+    node_width.text = str(img_width)
+    node_height = SubElement(node_size, 'height')
+    node_height.text = str(img_height)
+    node_depth = SubElement(node_size, 'depth')
+    node_depth.text = str(img_channle)
+
+    for anno_target in anno_list:
+        node_object = SubElement(node_root, 'object')
+        node_name = SubElement(node_object, 'name')
+        node_name.text = anno_target[-1]
+        node_difficult = SubElement(node_object, 'difficult')
+        node_difficult.text = '0'
+        node_bndbox = SubElement(node_object, 'bndbox')
+        node_xmin = SubElement(node_bndbox, 'xmin')
+        node_xmin.text = str(anno_target[0])
+        node_ymin = SubElement(node_bndbox, 'ymin')
+        node_ymin.text = str(anno_target[1])
+        node_xmax = SubElement(node_bndbox, 'xmax')
+        node_xmax.text = str(anno_target[2])
+        node_ymax = SubElement(node_bndbox, 'ymax')
+        node_ymax.text = str(anno_target[3])
+    xml_obj = tostring(node_root, pretty_print=True)
+    xml_obj = xml_obj.decode("utf8")
+    tmp = abs_anno_path.split("/")[-1]
+    tmp = ".".join(tmp.split(".")[:-1] + ["xml"])
+    with open(abs_anno_path, "w") as handler:
+        handler.write(xml_obj)
+    # tmp = abs_img_path.split("/")[:-1]
+    # cv2.imwrite(save_dir + "JPEGImages/" + tmp, src_img_data)
+
+def fetch_xml_format(src_img_data, f_name, anno_list):
+    img_height, img_width, img_channle = src_img_data.shape
+
+    node_root = Element('annotation')
+    node_folder = SubElement(node_root, 'folder')
+    node_folder.text = 'CSUVideo'
+    node_filename = SubElement(node_root, 'filename')
+    node_filename.text = f_name
+
+    node_size = SubElement(node_root, 'size')
+    node_width = SubElement(node_size, 'width')
+    node_width.text = str(img_width)
+    node_height = SubElement(node_size, 'height')
+    node_height.text = str(img_height)
+    node_depth = SubElement(node_size, 'depth')
+    node_depth.text = str(img_channle)
+
+    for anno_target in anno_list:
+        node_object = SubElement(node_root, 'object')
+        node_name = SubElement(node_object, 'name')
+        node_name.text = anno_target[-1]
+        node_difficult = SubElement(node_object, 'difficult')
+        node_difficult.text = '0'
+        node_bndbox = SubElement(node_object, 'bndbox')
+        node_xmin = SubElement(node_bndbox, 'xmin')
+        node_xmin.text = str(anno_target[0])
+        node_ymin = SubElement(node_bndbox, 'ymin')
+        node_ymin.text = str(anno_target[1])
+        node_xmax = SubElement(node_bndbox, 'xmax')
+        node_xmax.text = str(anno_target[2])
+        node_ymax = SubElement(node_bndbox, 'ymax')
+        node_ymax.text = str(anno_target[3])
+    xml_obj = tostring(node_root, pretty_print=True)
+    xml_obj = xml_obj.decode("utf8")
+    return xml_obj
 
 if __name__ == '__main__':
     left_pos = Point(0, 0)

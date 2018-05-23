@@ -17,7 +17,7 @@ print(proj_dir)
 
 class SSDConfig(object):
     # Model selection and dependent parameters
-    MODEL = "ResAlexNet"
+    MODEL = "AlexNet"
 
     # Default boxes
     # DEFAULT_BOXES = ((x1_offset, y1_offset, x2_offset, y2_offset), (...), ...)

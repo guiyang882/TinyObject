@@ -154,10 +154,9 @@ def generate_output(image_file):
             ("conv5/convolution:0", (20, 20)),
             ("conv5/Relu:0", (20, 20)),
         ]
-        graph_def = tf.get_default_graph().as_graph_def()
-        for node in graph_def.node:
-            print(node.name)
-        return
+        # graph_def = tf.get_default_graph().as_graph_def()
+        # for node in graph_def.node:
+        #     print(node.name)
         show_idx = 2
         show_details_by_name(images, model, sess,
                              show_tensor_list[show_idx][0],
